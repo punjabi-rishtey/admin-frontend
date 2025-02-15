@@ -17,6 +17,7 @@ const Users = () => {
     setError('');
 
     const token = localStorage.getItem('token');
+    console.log(token)
     if (!token) {
       setError('Unauthorized: No token found. Please log in.');
       setLoading(false);
@@ -27,7 +28,7 @@ const Users = () => {
       const response = await fetch('https://backend-nm1z.onrender.com/api/admin/auth/users', {
         method: 'GET',
         headers: {
-          'Accept': 'application/json',
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
