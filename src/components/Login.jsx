@@ -9,37 +9,37 @@ function Login() {
   const navigate = useNavigate();
   
   const handleLogin = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    
-    try {
-      const response = await axios.post('https://backend-nm1z.onrender.com/api/admin/auth/login', {
-        email,
-        password
-      });
+  event.preventDefault();
+  setLoading(true);
   
-      console.log('Login Successful:', response.data);
-  
-      if (!response.data.token) {
-        throw new Error("Invalid response: Token missing");
-      }
-  
-      // ✅ Ensure `admin` object exists before using `.name`
-      const adminName = response.data.admin?.name || "Admin";  // Use optional chaining
-  
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userName', adminName);  // Save default "Admin" if `name` is missing
-  
-      setLoading(false);
-      navigate('/dashboard', { state: { email } });
-  
-    } catch (error) {
-      console.error('Login Failed:', error.response ? error.response.data : error.message);
-      alert("Login failed: " + (error.response?.data?.message || "Check your network connection."));
-      setLoading(false);
+  try {
+    const response = await axios.post('https://backend-nm1z.onrender.com/api/admin/auth/login', {
+      email,
+      password
+    });
+
+    console.log('Login Successful:', response.data);
+
+    if (!response.data.token) {
+      throw new Error("Invalid response: Token missing");
     }
-  };
-  
+
+    // ✅ Ensure `admin` object exists before using `.name`
+    const adminName = response.data.admin?.name || "Admin";  // Use optional chaining
+
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('userName', adminName);  // Save default "Admin" if `name` is missing
+
+    setLoading(false);
+    navigate('/dashboard', { state: { email } });
+
+  } catch (error) {
+    console.error('Login Failed:', error.response ? error.response.data : error.message);
+    alert("Login failed: " + (error.response?.data?.message || "Check your network connection."));
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
