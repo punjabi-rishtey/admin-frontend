@@ -1,49 +1,81 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [updating, setUpdating] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setUsers([
-      { id: 1, name: 'John Doe', age: 30, religion: 'Christianity', caste: 'Caste1', subscriptionActive: true, mobile: '123-456-7890' },
-      { id: 2, name: 'Jane Doe', age: 25, religion: 'Hinduism', caste: 'Caste2', subscriptionActive: false, mobile: '123-456-7891' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 4, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 5, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 6, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 7, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 8, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 9, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 10, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 11, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 12, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 13, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 14, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 15, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 16, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 17, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 18, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 19, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 20, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 21, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 22, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-      { id: 3, name: 'Jim Beam', age: 35, religion: 'Islam', caste: 'Caste3', subscriptionActive: true, mobile: '123-456-7892' },
-    ]);
+    fetchUsers();
   }, []);
 
-  const toggleSubscription = id => {
-    setUsers(users.map(user => {
-      if (user.id === id) {
-        return { ...user, subscriptionActive: !user.subscriptionActive };
-      }
-      return user;
-    }));
+  const fetchUsers = async () => {
+    setLoading(true);
+    setError('');
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('Unauthorized: No token found. Please log in.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('https://backend-nm1z.onrender.com/api/admin/auth/users', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const data = await response.json();
+
+      // Ensure correct mapping of subscription status
+      const updatedUsers = data.map(user => ({
+        ...user,
+        subscriptionActive: user.status === "Approved", // Ensure boolean value based on `status`
+      }));
+
+      setUsers(updatedUsers);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleSubscription = async (userId, currentStatus) => {
+    setUpdating(prev => ({ ...prev, [userId]: true }));
+
+    const endpoint = currentStatus
+      ? `https://backend-nm1z.onrender.com/api/admin/auth/users/block/${userId}`
+      : `https://backend-nm1z.onrender.com/api/admin/auth/users/approve/${userId}`;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to update subscription status.');
+
+      fetchUsers();
+    } catch (err) {
+      console.error('Error updating subscription status:', err);
+      alert('Failed to update subscription status.');
+    } finally {
+      setUpdating(prev => ({ ...prev, [userId]: false }));
+    }
   };
 
   return (
@@ -52,46 +84,66 @@ const Users = () => {
         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
           Add User
         </button>
-        <select
-          className="form-select block w-1/5 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          defaultValue="All"
-        >
-          <option>All Users</option>
-          <option>Active Users</option>
-          <option>Deactive Users</option>
-        </select>
       </div>
-      <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-            <tr>
-              <th scope="col" className="py-3 px-6">Name</th>
-              <th scope="col" className="py-3 px-6">Age</th>
-              <th scope="col" className="py-3 px-6">Religion</th>
-              <th scope="col" className="py-3 px-6">Caste</th>
-              <th scope="col" className="py-3 px-6">Subscription Active</th>
-              <th scope="col" className="py-3 px-6">Mobile Number</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="bg-white border-b">
-                <td className="py-4 px-6">{user.name}</td>
-                <td className="py-4 px-6">{user.age}</td>
-                <td className="py-4 px-6">{user.religion}</td>
-                <td className="py-4 px-6">{user.caste}</td>
-                <td className="py-4 px-6">
-                  <label className="switch">
-                    <input type="checkbox" checked={user.subscriptionActive} onChange={() => toggleSubscription(user.id)} />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td className="py-4 px-6">{user.mobile}</td>
+
+      {loading ? (
+        <p className="text-gray-600">Loading users...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
+          <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+              <tr>
+                <th className="py-3 px-6">Name</th>
+                <th className="py-3 px-6">Age</th>
+                <th className="py-3 px-6">Religion</th>
+                <th className="py-3 px-6">Caste</th>
+                <th className="py-3 px-6">Subscription Active</th>
+                <th className="py-3 px-6">Mobile Number</th>
+                <th className="py-3 px-6">Marital Status</th>
+                <th className="py-3 px-6">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user._id} className="bg-white border-b">
+                  <td className="py-4 px-6">{user.name || 'N/A'}</td>
+                  <td className="py-4 px-6">
+                    {user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 'N/A'}
+                  </td>
+                  <td className="py-4 px-6">{user.religion || 'N/A'}</td>
+                  <td className="py-4 px-6">{user.caste || 'N/A'}</td>
+                  <td className="py-4 px-6">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={user.subscriptionActive}
+                        onChange={() => toggleSubscription(user._id, user.subscriptionActive)}
+                        className="sr-only peer"
+                        disabled={updating[user._id]}
+                      />
+                      <div className={`w-11 h-6 rounded-full transition-all ${user.subscriptionActive ? 'bg-green-500' : 'bg-gray-300'}`}>
+                        <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform transform ${user.subscriptionActive ? 'translate-x-5' : ''}`}></div>
+                      </div>
+                    </label>
+                  </td>
+                  <td className="py-4 px-6">{user.mobile || 'N/A'}</td>
+                  <td className="py-4 px-6">{user.marital_status || 'N/A'}</td>
+                  <td className="py-4 px-6">
+                    <button 
+                      className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded"
+                      onClick={() => navigate(`/edit-user/${user._id}`)}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
