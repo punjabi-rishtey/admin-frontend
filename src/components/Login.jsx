@@ -10,23 +10,36 @@ function Login() {
   
   const handleLogin = async (event) => {
     event.preventDefault();
-    setLoading(true);  // Set loading to true when login starts
+    setLoading(true);
+    
     try {
-      const response = await axios.post('https://only-backend-je4j.onrender.com/api/admin/login', {
+      const response = await axios.post('https://backend-nm1z.onrender.com/api/admin/auth/login', {
         email,
         password
       });
+  
       console.log('Login Successful:', response.data);
+  
+      if (!response.data.token) {
+        throw new Error("Invalid response: Token missing");
+      }
+  
+      // ✅ Ensure `admin` object exists before using `.name`
+      const adminName = response.data.admin?.name || "Admin";  // Use optional chaining
+  
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userName', response.data.admin.name);
-      setLoading(false);  // Set loading to false when login is successful
+      localStorage.setItem('userName', adminName);  // Save default "Admin" if `name` is missing
+  
+      setLoading(false);
       navigate('/dashboard', { state: { email } });
+  
     } catch (error) {
       console.error('Login Failed:', error.response ? error.response.data : error.message);
-      alert("Login failed: " + (error.response ? error.response.data.message : "Check your network connection."));
-      setLoading(false);  // Ensure to set loading to false if there's an error
+      alert("Login failed: " + (error.response?.data?.message || "Check your network connection."));
+      setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
