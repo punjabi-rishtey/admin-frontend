@@ -3,18 +3,63 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis
 
 const Analytics = () => {
   const [data, setData] = useState({
-    userStats: [
-      { name: 'Active', value: 240 },
-      { name: 'Inactive', value: 100 }
-    ],
-    registrationStats: [
-      { name: 'Jan', registrations: 20 },
-      { name: 'Feb', registrations: 30 },
-      { name: 'Mar', registrations: 45 },
-      { name: 'Apr', registrations: 60 },
-      { name: 'May', registrations: 80 }
-    ]
+    userStats: [],
+    registrationStats: []
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Retrieve the token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('No token found');
+        return; // Early exit if token is not available
+      }
+
+      try {
+        const response = await fetch('https://backend-nm1z.onrender.com/api/admin/auth/users', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`  // Use the token from localStorage
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const users = await response.json();
+        processUserData(users);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Process user data to update state for charts
+  const processUserData = (users) => {
+    // Example processing:
+    const statusCounts = users.reduce((acc, user) => {
+      const status = user.status || 'Unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
+    const monthlyRegistrations = users.reduce((acc, user) => {
+      const month = new Date(user.metadata.register_date).getMonth();
+      acc[month] = (acc[month] || 0) + 1;
+      return acc;
+    }, Array(12).fill(0).map((_, index) => ({
+      name: new Date(0, index + 1, 0).toLocaleString('default', { month: 'short' }),
+      registrations: 0
+    })));
+
+    setData({
+      userStats: Object.entries(statusCounts).map(([name, value]) => ({ name, value })),
+      registrationStats: monthlyRegistrations
+    });
+  };
 
   // Colors for charts
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
