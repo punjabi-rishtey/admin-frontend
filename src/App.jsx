@@ -21,7 +21,6 @@ const App = () => {
       <div className={`${showSidebar ? 'ml-64' : ''} p-8 w-full`}>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/edit-user/:id" element={<EditUser />} />
           <Route path="/creatives" element={<Creatives />} />

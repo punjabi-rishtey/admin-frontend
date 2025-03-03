@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard' },
     { name: 'Users', path: '/users' },
     { name: 'Owner\'s Creatives', path: '/creatives' },
     { name: 'Analytics', path: '/analytics' },

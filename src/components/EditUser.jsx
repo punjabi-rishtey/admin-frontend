@@ -101,17 +101,17 @@ const EditUser = () => {
         <div className="col-span-2">
           <h3 className="text-xl font-semibold mb-2">Basic Information</h3>
         </div>
-        <input className="border p-3 rounded-lg w-full" type="text" name="name" value={formData.name || ""} onChange={handleChange} required placeholder="Full Name" />
-        <input className="border p-3 rounded-lg w-full" type="email" name="email" value={formData.email || ""} onChange={handleChange} required placeholder="Email" />
-        <input className="border p-3 rounded-lg w-full" type="text" name="mobile" value={formData.mobile || ""} onChange={handleChange} required placeholder="Mobile Number" />
+        <input className="border p-3 rounded-lg w-full" type="text" name="name" value={formData.name || ""} onChange={handleChange} placeholder="Full Name" />
+        <input className="border p-3 rounded-lg w-full" type="email" name="email" value={formData.email || ""} onChange={handleChange} placeholder="Email" />
+        <input className="border p-3 rounded-lg w-full" type="text" name="mobile" value={formData.mobile || ""} onChange={handleChange} placeholder="Mobile Number" />
         <select className="border p-3 rounded-lg w-full" name="gender" value={formData.gender || ""} onChange={handleChange} required>
           <option value="">Select Gender</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
         </select>
-        <input className="border p-3 rounded-lg w-full" type="date" name="dob" value={formData.dob || ""} onChange={handleChange} required />
-        <input className="border p-3 rounded-lg w-full" type="text" name="religion" value={formData.religion || ""} onChange={handleChange} required placeholder="Religion" />
-        <input className="border p-3 rounded-lg w-full" type="text" name="marital_status" value={formData.marital_status || ""} onChange={handleChange} required placeholder="Marital Status" />
+        <input className="border p-3 rounded-lg w-full" type="date" name="dob" value={formData.dob || ""} onChange={handleChange} />
+        <input className="border p-3 rounded-lg w-full" type="text" name="religion" value={formData.religion || ""} onChange={handleChange} placeholder="Religion" />
+        <input className="border p-3 rounded-lg w-full" type="text" name="marital_status" value={formData.marital_status || ""} onChange={handleChange} placeholder="Marital Status" />
         <input className="border p-3 rounded-lg w-full" type="text" name="height" value={formData.height || ""} onChange={handleChange} placeholder="Height" />
         <input className="border p-3 rounded-lg w-full" type="text" name="caste" value={formData.caste || ""} onChange={handleChange} placeholder="Caste" />
         <input className="border p-3 rounded-lg w-full" type="text" name="language" value={formData.language || ""} onChange={handleChange} placeholder="Language" />
@@ -178,8 +178,8 @@ const EditUser = () => {
         <div className="col-span-2">
           <h3 className="text-xl font-semibold mb-2">Profession Details</h3>
         </div>
-        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Occupation" onChange={(e) => handleNestedChange(e, "profession_details", "occupation")} required />
-        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Income" onChange={(e) => handleNestedChange(e, "profession_details", "income")} required />
+        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Occupation" onChange={(e) => handleNestedChange(e, "profession_details", "occupation")} />
+        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Income" onChange={(e) => handleNestedChange(e, "profession_details", "income")} />
         <input className="border p-3 rounded-lg w-full" type="text" placeholder="Designation" onChange={(e) => handleNestedChange(e, "profession_details", "designation")} />
         <input className="border p-3 rounded-lg w-full" type="text" placeholder="Working With" onChange={(e) => handleNestedChange(e, "profession_details", "working_with")} />
         <input className="border p-3 rounded-lg w-full" type="text" placeholder="Working As" onChange={(e) => handleNestedChange(e, "profession_details", "working_as")} />
@@ -191,10 +191,10 @@ const EditUser = () => {
         </div>
         <input className="border p-3 rounded-lg w-full" type="text" placeholder="Family Value" onChange={(e) => handleNestedChange(e, "family_details", "family_value")} />
         <input className="border p-3 rounded-lg w-full" type="number" placeholder="Family Size" onChange={(e) => handleNestedChange(e, "family_details", "family_size")} />
-        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Father's Name" onChange={(e) => handleNestedChange(e, "family_details", "father.name")} required />
-        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Father's Occupation" onChange={(e) => handleNestedChange(e, "family_details", "father.occupation")} required />
-        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Mother's Name" onChange={(e) => handleNestedChange(e, "family_details", "mother.name")} required />
-        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Mother's Occupation" onChange={(e) => handleNestedChange(e, "family_details", "mother.occupation")} required />
+        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Father's Name" onChange={(e) => handleNestedChange(e, "family_details", "father.name")} />
+        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Father's Occupation" onChange={(e) => handleNestedChange(e, "family_details", "father.occupation")} />
+        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Mother's Name" onChange={(e) => handleNestedChange(e, "family_details", "mother.name")} />
+        <input className="border p-3 rounded-lg w-full" type="text" placeholder="Mother's Occupation" onChange={(e) => handleNestedChange(e, "family_details", "mother.occupation")}/>
         <input className="border p-3 rounded-lg w-full" type="number" placeholder="Number of Brothers" onChange={(e) => handleNestedChange(e, "family_details", "siblings.brother_count")} />
         <input className="border p-3 rounded-lg w-full" type="number" placeholder="Number of Sisters" onChange={(e) => handleNestedChange(e, "family_details", "siblings.sister_count")} />
         
