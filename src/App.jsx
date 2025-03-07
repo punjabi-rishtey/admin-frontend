@@ -8,6 +8,7 @@ import Support from './components/Support';
 import Login from './components/Login';
 import EditUser from './components/EditUser';
 import AddUser from "./components/AddUser";
+import AdminMemberships from "./components/Memberships";
 
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/support" element={<Support />} />\
           <Route path="/add-user" element={<AddUser />} />
+          <Route path="/admin/memberships" element={<AdminMemberships />} />
         </Routes>
       </div>
     </div>

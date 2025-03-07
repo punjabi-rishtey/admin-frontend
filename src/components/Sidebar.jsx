@@ -6,7 +6,8 @@ const Sidebar = () => {
     { name: 'Users', path: '/users' },
     { name: 'Owner\'s Creatives', path: '/creatives' },
     { name: 'Analytics', path: '/analytics' },
-    { name: 'Customer Support', path: '/support' }
+    { name: 'Customer Support', path: '/support' },
+    { name: 'Membership Plans', path: '/admin/memberships' } // New tab added
   ];
 
   return (
