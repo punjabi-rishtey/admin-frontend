@@ -31,7 +31,7 @@ function Login() {
     localStorage.setItem('userName', adminName);  // Save default "Admin" if `name` is missing
 
     setLoading(false);
-    navigate('/dashboard', { state: { email } });
+    navigate('/users', { state: { email } });
 
   } catch (error) {
     console.error('Login Failed:', error.response ? error.response.data : error.message);
