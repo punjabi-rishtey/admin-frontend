@@ -1,6 +1,14 @@
 import React from "react";
 
-const EducationDetails = ({ formData, handleNestedChange }) => {
+const EducationDetails = ({
+  formData,
+  handleNestedChange,
+  handleSubmitSection,
+}) => {
+  const saveEducation = (e) => {
+    e.preventDefault();
+    handleSubmitSection("education");
+  };
   return (
     <>
       <div className="col-span-2">
@@ -29,6 +37,15 @@ const EducationDetails = ({ formData, handleNestedChange }) => {
         }
         placeholder="Qualification Details"
       />
+      <div className="col-span-2 mt-4">
+        <button
+          type="button"
+          onClick={saveEducation}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+        >
+          Save Education Details
+        </button>
+      </div>
     </>
   );
 };

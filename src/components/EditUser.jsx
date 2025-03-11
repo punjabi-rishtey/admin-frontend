@@ -6,6 +6,7 @@ import ProfessionDetails from "./ProfessionDetails";
 import EducationDetails from "./EducationDetails";
 import FamilyDetails from "./FamilyDetails";
 import AstrologyDetails from "./AstrologyDetails";
+import ProfilePictures from "./ProfilePictures";
 
 const EditUser = () => {
   const { id } = useParams();
@@ -62,6 +63,14 @@ const EditUser = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sectionStatus, setSectionStatus] = useState({
+    profile: "idle",
+    profession: "idle",
+    education: "idle",
+    family: "idle",
+    astrology: "idle",
+    pictures: "idle",
+  });
 
   useEffect(() => {
     fetchUserDetails();
@@ -80,6 +89,39 @@ const EditUser = () => {
     } catch (error) {
       setError("Failed to fetch user details.");
       setLoading(false);
+    }
+  };
+
+  const handleSubmitSection = async (section) => {
+    try {
+      setSectionStatus((prev) => ({ ...prev, [section]: "loading" }));
+      const token = localStorage.getItem("token");
+
+      // You might want to adjust the endpoint to handle partial updates
+      await axios.put(
+        `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}/${section}`,
+        { [section]: formData[section] },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setSectionStatus((prev) => ({ ...prev, [section]: "success" }));
+      setTimeout(() => {
+        setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
+      }, 3000);
+    } catch (error) {
+      setSectionStatus((prev) => ({ ...prev, [section]: "error" }));
+      alert(
+        `Failed to update ${section}. ` +
+          (error.response?.data?.message || error.message)
+      );
+      setTimeout(() => {
+        setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
+      }, 3000);
     }
   };
 
@@ -106,6 +148,15 @@ const EditUser = () => {
           (error.response?.data?.message || error.message)
       );
     }
+  };
+
+  const handleUpdatePictures = (updatedPictures) => {
+    setFormData((prev) => ({
+      ...prev,
+      profile_pictures: updatedPictures,
+    }));
+    // You might want to immediately save this change
+    handleSubmitSection("pictures");
   };
 
   const handleChange = (e) => {
@@ -160,50 +211,38 @@ const EditUser = () => {
           formData={formData}
           handleChange={handleChange}
           handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
         />
 
         <ProfessionDetails
           formData={formData}
           handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
         />
 
         <EducationDetails
           formData={formData}
           handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
         />
 
         <FamilyDetails
           formData={formData}
           handleNestedChange={handleNestedChange}
           handleDeepNestedChange={handleDeepNestedChange}
+          handleSubmitSection={handleSubmitSection}
         />
 
         <AstrologyDetails
           formData={formData}
           handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
         />
 
-        {/* Profile Pictures */}
-        <div className="col-span-2">
-          <h3 className="text-xl font-semibold mb-2">Profile Pictures</h3>
-        </div>
-        <div className="col-span-2 flex flex-wrap gap-4">
-          {formData.profile_pictures?.map((pic, index) => (
-            <img
-              key={index}
-              src={pic}
-              alt="Profile"
-              className="w-32 h-32 object-cover rounded-md"
-            />
-          ))}
-        </div>
-
-        {/* Submit Button */}
-        <div className="col-span-2 flex justify-center mt-6">
-          <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
-            Update User
-          </button>
-        </div>
+        <ProfilePictures
+          formData={formData}
+          handleUpdatePictures={handleUpdatePictures}
+        />
       </form>
     </div>
   );

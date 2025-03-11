@@ -4,7 +4,12 @@ const FamilyDetails = ({
   formData,
   handleNestedChange,
   handleDeepNestedChange,
+  handleSubmitSection,
 }) => {
+  const saveFamily = (e) => {
+    e.preventDefault();
+    handleSubmitSection("family");
+  };
   return (
     <>
       <div className="col-span-2">
@@ -98,6 +103,15 @@ const FamilyDetails = ({
         }
         placeholder="Number of Sisters"
       />
+      <div className="col-span-2 mt-4">
+        <button
+          type="button"
+          onClick={saveFamily}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+        >
+          Save Family Details
+        </button>
+      </div>
     </>
   );
 };

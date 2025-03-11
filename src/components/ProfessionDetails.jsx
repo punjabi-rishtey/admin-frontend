@@ -1,6 +1,14 @@
 import React from "react";
 
-const ProfessionDetails = ({ formData, handleNestedChange }) => {
+const ProfessionDetails = ({
+  formData,
+  handleNestedChange,
+  handleSubmitSection,
+}) => {
+  const saveProfession = (e) => {
+    e.preventDefault();
+    handleSubmitSection("profession");
+  };
   return (
     <>
       <div className="col-span-2">
@@ -48,6 +56,15 @@ const ProfessionDetails = ({ formData, handleNestedChange }) => {
         onChange={(e) => handleNestedChange(e, "profession", "work_address")}
         placeholder="Work Address"
       />
+      <div className="col-span-2 mt-4">
+        <button
+          type="button"
+          onClick={saveProfession}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+        >
+          Save Profession Details
+        </button>
+      </div>
     </>
   );
 };

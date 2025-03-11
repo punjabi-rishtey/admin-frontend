@@ -1,6 +1,14 @@
 import React from "react";
 
-const AstrologyDetails = ({ formData, handleNestedChange }) => {
+const AstrologyDetails = ({
+  formData,
+  handleNestedChange,
+  handleSubmitSection,
+}) => {
+  const saveAstrology = (e) => {
+    e.preventDefault();
+    handleSubmitSection("astrology");
+  };
   return (
     <>
       <div className="col-span-2">
@@ -27,6 +35,15 @@ const AstrologyDetails = ({ formData, handleNestedChange }) => {
         onChange={(e) => handleNestedChange(e, "astrology", "gotra_mama")}
         placeholder="Gotra Mama"
       />
+      <div className="col-span-2 mt-4">
+        <button
+          type="button"
+          onClick={saveAstrology}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+        >
+          Save Astrology Details
+        </button>
+      </div>
     </>
   );
 };

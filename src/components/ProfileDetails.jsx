@@ -1,6 +1,15 @@
 import React from "react";
 
-const ProfileDetails = ({ formData, handleChange, handleNestedChange }) => {
+const ProfileDetails = ({
+  formData,
+  handleChange,
+  handleNestedChange,
+  handleSubmitSection,
+}) => {
+  const saveProfile = (e) => {
+    e.preventDefault();
+    handleSubmitSection("profile");
+  };
   return (
     <>
       {/* Basic Information */}
@@ -229,6 +238,15 @@ const ProfileDetails = ({ formData, handleChange, handleNestedChange }) => {
         <option value="Non-Vegetarian">Non-Vegetarian</option>
         <option value="Eggetarian">Eggetarian</option>
       </select>
+      <div className="col-span-2 mt-4">
+        <button
+          type="button"
+          onClick={saveProfile}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+        >
+          Save Profile Details
+        </button>
+      </div>
     </>
   );
 };
