@@ -14,27 +14,37 @@ const AstrologyDetails = ({
       <div className="col-span-2">
         <h3 className="text-xl font-semibold mb-2">Astrology</h3>
       </div>
-      <input
-        className="border p-3 rounded-lg w-full"
-        type="text"
-        value={formData.astrology?.rashi_nakshatra || ""}
-        onChange={(e) => handleNestedChange(e, "astrology", "rashi_nakshatra")}
-        placeholder="Rashi & Nakshatra"
-      />
-      <input
-        className="border p-3 rounded-lg w-full"
-        type="text"
-        value={formData.astrology?.gotra || ""}
-        onChange={(e) => handleNestedChange(e, "astrology", "gotra")}
-        placeholder="Gotra"
-      />
-      <input
-        className="border p-3 rounded-lg w-full"
-        type="text"
-        value={formData.astrology?.gotra_mama || ""}
-        onChange={(e) => handleNestedChange(e, "astrology", "gotra_mama")}
-        placeholder="Gotra Mama"
-      />
+  {/* Rashi & Nakshatra */}
+  <div className="mb-4">
+        <label htmlFor="rashi_nakshatra" className="block text-gray-700 mb-1">
+          Rashi &amp; Nakshatra
+        </label>
+        <input
+          id="rashi_nakshatra"
+          className="border p-3 rounded-lg w-full"
+          type="text"
+          value={formData.astrology?.rashi_nakshatra || ""}
+          onChange={(e) =>
+            handleNestedChange(e, "astrology", "rashi_nakshatra")
+          }
+        />
+      </div>
+
+      {/* Gotra */}
+      <div className="mb-4">
+        <label htmlFor="gotra" className="block text-gray-700 mb-1">
+          Gotra
+        </label>
+        <input
+          id="gotra"
+          className="border p-3 rounded-lg w-full"
+          type="text"
+          value={formData.astrology?.gotra || ""}
+          onChange={(e) => handleNestedChange(e, "astrology", "gotra")}
+        />
+      </div>
+
+
       <div className="col-span-2 mt-4">
         <button
           type="button"

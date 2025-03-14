@@ -58,7 +58,7 @@ const EditUser = () => {
       education_field: "",
       qualification_details: "",
     },
-    astrology: { rashi_nakshatra: "", gotra: "", gotra_mama: "" },
+    astrology: { rashi_nakshatra: "", gotra: ""},
   });
 
   const [loading, setLoading] = useState(true);
@@ -76,6 +76,24 @@ const EditUser = () => {
     fetchUserDetails();
   }, [id]);
 
+
+  // const fetchUserDetails = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await axios.get(
+  //       `https://backend-nm1z.onrender.com/api/admin/auth/user/${id}`,
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+
+  //     setFormData(response.data);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     setError("Failed to fetch user details.");
+  //     setLoading(false);
+  //   }
+  // };
+
+
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -83,14 +101,89 @@ const EditUser = () => {
         `https://backend-nm1z.onrender.com/api/admin/auth/user/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      setFormData(response.data);
+  
+      let data = response.data;
+  
+        // 1) Gender
+      if (data.gender) {
+        // If your dropdown <option value="Male">, then keep it capital M
+        // If your dropdown <option value="male">, use lowercase
+        // Right now you have <option value="Male"> in ProfileDetails.jsx, so do:
+        data.gender = data.gender.charAt(0).toUpperCase() + data.gender.slice(1).toLowerCase();
+        // e.g. "male" => "Male"
+      }
+  
+      // Normalize Religion
+      if (data.religion) {
+        data.religion = data.religion.toLowerCase();
+      }
+  
+      // Normalize Marital Status: e.g., "Never Married" -> "never_married"
+      if (data.marital_status) {
+        data.marital_status = data.marital_status.toLowerCase().replace(/\s+/g, "_");
+      }
+  
+      // Normalize Caste: convert to lowercase so "Khatri" becomes "khatri"
+      if (data.caste) {
+        data.caste = data.caste.toLowerCase();
+      }
+  
+      // Transform Mangalik: Convert boolean to dropdown value.
+      // Since your dropdown options are: "manglik", "partial_manglik", "non_manglik"
+      // Without additional info, we'll assume: true => "manglik", false => "non_manglik"
+      if (typeof data.mangalik === "boolean") {
+        data.mangalik = data.mangalik ? "manglik" : "non_manglik";
+      }
+  
+      // Normalize Lifestyle fields
+      if (data.lifestyle) {
+        data.lifestyle.smoke = data.lifestyle.smoke ? "yes" : "no";
+        data.lifestyle.drink = data.lifestyle.drink ? "yes" : "no";
+        data.lifestyle.nri_status = data.lifestyle.nri_status ? "true" : "false";
+        if (data.lifestyle.veg_nonveg) {
+          data.lifestyle.veg_nonveg = data.lifestyle.veg_nonveg.toLowerCase();
+        }
+      }
+  
+      // Normalize Physical Attributes
+      if (data.physical_attributes) {
+        data.physical_attributes.physical_disability = data.physical_attributes.physical_disability ? "true" : "false";
+        if (data.physical_attributes.skin_tone) {
+          data.physical_attributes.skin_tone = data.physical_attributes.skin_tone.toLowerCase();
+        }
+        if (data.physical_attributes.body_type) {
+          data.physical_attributes.body_type = data.physical_attributes.body_type.toLowerCase();
+        }
+      }
+  
+      // Normalize Height (if stored as a string like "7'11\"")
+      if (typeof data.height === "string") {
+        const match = data.height.match(/(\d+)'(\d+)/);
+        if (match) {
+          data.height = { feet: match[1], inches: match[2] };
+        } else {
+          data.height = { feet: "", inches: "" };
+        }
+      }
+  
+      setFormData(data);
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch user details.");
       setLoading(false);
     }
   };
+  
+
+
+
+
+
+
+
+  
+
+
 
   const handleSubmitSection = async (section) => {
     try {
