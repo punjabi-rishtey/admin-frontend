@@ -4,12 +4,16 @@ const Modal = ({ title, onClose, onSubmit }) => {
   const [userName, setUserName] = useState('');
   const [message, setMessage] = useState('');
   const [image, setImage] = useState(null);
+  const [partner1Date, setPartner1Date] = useState('');
+  const [partner2Date, setPartner2Date] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('user_name', userName);
     formData.append('message', message);
+    formData.append('partner1_registration_date', partner1Date);
+    formData.append('partner2_registration_date', partner2Date);
     if (image) {
       formData.append('image', image);
     }
@@ -56,12 +60,41 @@ const Modal = ({ title, onClose, onSubmit }) => {
               className="w-full p-2 border border-gray-300 rounded-md"
               required
             />
-            <input
-              type="file"
-              onChange={(e) => setImage(e.target.files[0])}
-              className="w-full p-2 border border-gray-300 file:border-none file:rounded-md file:bg-blue-500 file:text-white file:cursor-pointer file:hover:bg-blue-600 file:p-2"
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Partner 1 Registration Date
+              </label>
+              <input
+                type="date"
+                value={partner1Date}
+                onChange={(e) => setPartner1Date(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Partner 2 Registration Date
+              </label>
+              <input
+                type="date"
+                value={partner2Date}
+                onChange={(e) => setPartner2Date(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Image
+              </label>
+              <input
+                type="file"
+                onChange={(e) => setImage(e.target.files[0])}
+                className="w-full p-2 border border-gray-300 file:border-none file:rounded-md file:bg-blue-500 file:text-white file:cursor-pointer file:hover:bg-blue-600 file:p-2"
+                required
+              />
+            </div>
             <div className="flex justify-end space-x-3">
               <button type="button" onClick={onClose} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
                 Close

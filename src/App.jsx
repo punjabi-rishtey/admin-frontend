@@ -10,6 +10,7 @@ import EditUser from './components/EditUser';
 import AddUser from "./components/AddUser";
 import AdminMemberships from "./components/Memberships";
 import CouponsPage from './components/CouponsPage';
+import PaymentsPage from './components/PaymentsPage';
 
 
 const App = () => {
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="/add-user" element={<AddUser />} />
           <Route path="/admin/coupons" element={<CouponsPage />} />
           <Route path="/admin/memberships" element={<AdminMemberships />} />
+          <Route path="/admin/payment-requests" element={<PaymentsPage />} />
         </Routes>
       </div>
     </div>
