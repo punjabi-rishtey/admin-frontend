@@ -7,8 +7,9 @@ const Sidebar = () => {
     { name: 'Owner\'s Creatives', path: '/creatives' },
     { name: 'Analytics', path: '/analytics' },
     { name: 'Customer Support', path: '/support' },
-    { name: 'Payment Requests', path: '/admin/payment-requests' }, // New tab added
-    { name: 'Membership Plans', path: '/admin/memberships' }
+    { name: 'Payment Requests', path: '/admin/payment-requests' },
+    { name: 'Membership Plans', path: '/admin/memberships' },
+    { name: 'Coupons', path: '/admin/coupons' } // Added Coupons page
   ];
 
   return (
