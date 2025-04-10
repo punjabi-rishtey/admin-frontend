@@ -12,6 +12,61 @@ const PaymentsPage = () => {
     fetchPayments();
   }, []);
 
+
+  const handlePaymentRequestAccept = async (e, userId) => {
+    e.preventDefault()
+    const payload = {status: "Approved"};
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.put(`https://backend-nm1z.onrender.com/api/admin/auth/user/${userId}/profile`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const updatedUser = response.data.user
+        
+        if (updatedUser) {
+          // console.log(">> user update status succ: ", response.data)
+          alert(`Request Accepted for user \n${updatedUser.name} (${updatedUser.mobile}) \n${updatedUser.email}`)
+        } else {
+          alert("something went wrong")
+        }
+        
+    } catch (err) {
+      console.error('Error fetching payments:', err);
+    } 
+
+  }
+
+  const handlePaymentRequestDecline = async (e,userId) => {
+    e.preventDefault()
+    const payload = {status: "Canceled"};
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.put(`https://backend-nm1z.onrender.com/api/admin/auth/user/${userId}/profile`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const updatedUser = response.data.user
+        
+        if (updatedUser) {
+          // console.log(">> user update status succ: ", response.data)
+          alert(`Request Declined for user \n${updatedUser.name} (${updatedUser.mobile}) \n${updatedUser.email}`)
+        } else {
+          alert("something went wrong")
+        }
+
+    } catch (err) {
+      console.error('Error fetching payments:', err);
+    } 
+
+  }
+
   const fetchPayments = async () => {
     try {
       setLoading(true);
@@ -129,13 +184,15 @@ const PaymentsPage = () => {
                     <td className="px-6 py-4">
                       {formatDate(payment.expiresAt)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 flex gap-4">
                       <button
                         onClick={() => viewDetails(payment)}
                         className="text-blue-600 font-medium hover:text-blue-800"
                       >
                         View Details
                       </button>
+                      <button onClick={(e)=>handlePaymentRequestAccept(e,payment.user._id)} className="py-4 cursor-pointer">✅</button>
+                      <button onClick={(e)=>handlePaymentRequestDecline(e,payment.user._id)} className="py-4 cursor-pointer">❌</button>
                     </td>
                   </tr>
                 ))
