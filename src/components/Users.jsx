@@ -254,9 +254,14 @@ const Users = () => {
   const toggleSubscription = async (userId, currentStatus) => {
     setUpdating((prev) => ({ ...prev, [userId]: true }));
 
+    let expiry;
+    if (currentStatus == false) {
+      expiry = prompt("Number of months:");
+    }
+
     const endpoint = currentStatus
       ? `https://backend-nm1z.onrender.com/api/admin/auth/users/block/${userId}`
-      : `https://backend-nm1z.onrender.com/api/admin/auth/users/approve/${userId}`;
+      : `https://backend-nm1z.onrender.com/api/admin/auth/users/approve/${userId}?expiry=${expiry}`;
 
     try {
       const token = localStorage.getItem("token");
