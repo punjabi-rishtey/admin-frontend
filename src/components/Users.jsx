@@ -188,17 +188,9 @@
 
 // export default Users;
 
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import UserStatusStats from "./UserStatusStats";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -227,15 +219,19 @@ const Users = () => {
     }
 
     try {
-      const response = await fetch("https://backend-nm1z.onrender.com/api/admin/auth/users", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://backend-nm1z.onrender.com/api/admin/auth/users",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      if (!response.ok)
+        throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
 
@@ -272,7 +268,8 @@ const Users = () => {
         },
       });
 
-      if (!response.ok) throw new Error("Failed to update subscription status.");
+      if (!response.ok)
+        throw new Error("Failed to update subscription status.");
 
       fetchUsers();
     } catch (err) {
@@ -302,7 +299,9 @@ const Users = () => {
     let filtered = users;
 
     if (query) {
-      filtered = filtered.filter((user) => user.name.toLowerCase().includes(query));
+      filtered = filtered.filter((user) =>
+        user.name.toLowerCase().includes(query)
+      );
     }
 
     if (subFilter === "Active") {
@@ -347,6 +346,8 @@ const Users = () => {
         </button>
       </div>
 
+      <UserStatusStats />
+
       {loading ? (
         <p className="text-gray-600">Loading users...</p>
       ) : error ? (
@@ -372,7 +373,10 @@ const Users = () => {
                   <tr key={user._id} className="bg-white border-b">
                     <td className="py-4 px-6">{user.name || "N/A"}</td>
                     <td className="py-4 px-6">
-                      {user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : "N/A"}
+                      {user.dob
+                        ? new Date().getFullYear() -
+                          new Date(user.dob).getFullYear()
+                        : "N/A"}
                     </td>
                     <td className="py-4 px-6">{user.religion || "N/A"}</td>
                     <td className="py-4 px-6">{user.caste || "N/A"}</td>
@@ -381,17 +385,34 @@ const Users = () => {
                         <input
                           type="checkbox"
                           checked={user.subscriptionActive}
-                          onChange={() => toggleSubscription(user._id, user.subscriptionActive)}
+                          onChange={() =>
+                            toggleSubscription(
+                              user._id,
+                              user.subscriptionActive
+                            )
+                          }
                           className="sr-only peer"
                           disabled={updating[user._id]}
                         />
-                        <div className={`w-11 h-6 rounded-full transition-all ${user.subscriptionActive ? "bg-green-500" : "bg-gray-300"}`}>
-                          <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform transform ${user.subscriptionActive ? "translate-x-5" : ""}`}></div>
+                        <div
+                          className={`w-11 h-6 rounded-full transition-all ${
+                            user.subscriptionActive
+                              ? "bg-green-500"
+                              : "bg-gray-300"
+                          }`}
+                        >
+                          <div
+                            className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform transform ${
+                              user.subscriptionActive ? "translate-x-5" : ""
+                            }`}
+                          ></div>
                         </div>
                       </label>
                     </td>
                     <td className="py-4 px-6">{user.mobile || "N/A"}</td>
-                    <td className="py-4 px-6">{user.marital_status || "N/A"}</td>
+                    <td className="py-4 px-6">
+                      {user.marital_status || "N/A"}
+                    </td>
                     <td className="py-4 px-6">
                       <button
                         className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded"
