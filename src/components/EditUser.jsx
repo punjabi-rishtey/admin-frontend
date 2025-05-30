@@ -76,7 +76,6 @@
 //     fetchUserDetails();
 //   }, [id]);
 
-
 //   // const fetchUserDetails = async () => {
 //   //   try {
 //   //     const token = localStorage.getItem("token");
@@ -93,7 +92,6 @@
 //   //   }
 //   // };
 
-
 //   const fetchUserDetails = async () => {
 //     try {
 //       const token = localStorage.getItem("token");
@@ -101,9 +99,9 @@
 //         `https://backend-nm1z.onrender.com/api/admin/auth/user/${id}`,
 //         { headers: { Authorization: `Bearer ${token}` } }
 //       );
-  
+
 //       let data = response.data;
-  
+
 //         // 1) Gender
 //       if (data.gender) {
 //         // If your dropdown <option value="Male">, then keep it capital M
@@ -112,29 +110,29 @@
 //         data.gender = data.gender.charAt(0).toUpperCase() + data.gender.slice(1).toLowerCase();
 //         // e.g. "male" => "Male"
 //       }
-  
+
 //       // Normalize Religion
 //       if (data.religion) {
 //         data.religion = data.religion.toLowerCase();
 //       }
-  
+
 //       // Normalize Marital Status: e.g., "Never Married" -> "never_married"
 //       if (data.marital_status) {
 //         data.marital_status = data.marital_status.toLowerCase().replace(/\s+/g, "_");
 //       }
-  
+
 //       // Normalize Caste: convert to lowercase so "Khatri" becomes "khatri"
 //       if (data.caste) {
 //         data.caste = data.caste.toLowerCase();
 //       }
-  
+
 //       // Transform Mangalik: Convert boolean to dropdown value.
 //       // Since your dropdown options are: "manglik", "partial_manglik", "non_manglik"
 //       // Without additional info, we'll assume: true => "manglik", false => "non_manglik"
 //       if (typeof data.mangalik === "boolean") {
 //         data.mangalik = data.mangalik ? "manglik" : "non_manglik";
 //       }
-  
+
 //       // Normalize Lifestyle fields
 //       if (data.lifestyle) {
 //         data.lifestyle.smoke = data.lifestyle.smoke ? "yes" : "no";
@@ -144,7 +142,7 @@
 //           data.lifestyle.veg_nonveg = data.lifestyle.veg_nonveg.toLowerCase();
 //         }
 //       }
-  
+
 //       // Normalize Physical Attributes
 //       if (data.physical_attributes) {
 //         data.physical_attributes.physical_disability = data.physical_attributes.physical_disability ? "true" : "false";
@@ -155,7 +153,7 @@
 //           data.physical_attributes.body_type = data.physical_attributes.body_type.toLowerCase();
 //         }
 //       }
-  
+
 //       // Normalize Height (if stored as a string like "7'11\"")
 //       if (typeof data.height === "string") {
 //         const match = data.height.match(/(\d+)'(\d+)/);
@@ -165,7 +163,7 @@
 //           data.height = { feet: "", inches: "" };
 //         }
 //       }
-  
+
 //       setFormData(data);
 //       setLoading(false);
 //     } catch (error) {
@@ -173,7 +171,7 @@
 //       setLoading(false);
 //     }
 //   };
-  
+
 //   const handleSubmitSection = async (section) => {
 //     try {
 //       setSectionStatus((prev) => ({ ...prev, [section]: "loading" }));
@@ -332,15 +330,6 @@
 
 // export default EditUser;
 
-
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -436,14 +425,18 @@ const EditUser = () => {
       // Transformations to normalize values for dropdowns, etc.
       if (data.gender) {
         // Assuming admin ProfileDetails expects "Male" / "Female"
-        data.gender = data.gender.charAt(0).toUpperCase() + data.gender.slice(1).toLowerCase();
+        data.gender =
+          data.gender.charAt(0).toUpperCase() +
+          data.gender.slice(1).toLowerCase();
       }
       if (data.religion) {
         data.religion = data.religion.toLowerCase();
       }
       if (data.marital_status) {
         // Transform "Never Married" to "never_married", etc.
-        data.marital_status = data.marital_status.toLowerCase().replace(/\s+/g, "_");
+        data.marital_status = data.marital_status
+          .toLowerCase()
+          .replace(/\s+/g, "_");
       }
       if (data.caste) {
         data.caste = data.caste.toLowerCase();
@@ -455,18 +448,25 @@ const EditUser = () => {
       if (data.lifestyle) {
         data.lifestyle.smoke = data.lifestyle.smoke ? "yes" : "no";
         data.lifestyle.drink = data.lifestyle.drink ? "yes" : "no";
-        data.lifestyle.nri_status = data.lifestyle.nri_status ? "true" : "false";
+        data.lifestyle.nri_status = data.lifestyle.nri_status
+          ? "true"
+          : "false";
         if (data.lifestyle.veg_nonveg) {
           data.lifestyle.veg_nonveg = data.lifestyle.veg_nonveg.toLowerCase();
         }
       }
       if (data.physical_attributes) {
-        data.physical_attributes.physical_disability = data.physical_attributes.physical_disability ? "true" : "false";
+        data.physical_attributes.physical_disability = data.physical_attributes
+          .physical_disability
+          ? "true"
+          : "false";
         if (data.physical_attributes.skin_tone) {
-          data.physical_attributes.skin_tone = data.physical_attributes.skin_tone.toLowerCase();
+          data.physical_attributes.skin_tone =
+            data.physical_attributes.skin_tone.toLowerCase();
         }
         if (data.physical_attributes.body_type) {
-          data.physical_attributes.body_type = data.physical_attributes.body_type.toLowerCase();
+          data.physical_attributes.body_type =
+            data.physical_attributes.body_type.toLowerCase();
         }
       }
       if (typeof data.height === "string") {
@@ -477,7 +477,7 @@ const EditUser = () => {
           data.height = { feet: "", inches: "" };
         }
       }
-  
+
       console.log("Transformed data:", data);
       setFormData(data);
       setLoading(false);
@@ -500,8 +500,12 @@ const EditUser = () => {
       // Choose endpoint and payload based on section name
       switch (section) {
         case "profile":
+          // Convert height object to string if needed
+          if (formData.height && typeof formData.height === "object") {
+            formData.height = `${formData.height.feet}'${formData.height.inches}"`;
+          }
           endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`;
-          payload = formData; // update full profile
+          payload = formData;
           break;
         case "astrology":
           endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/astrologies/${id}`;
@@ -535,6 +539,8 @@ const EditUser = () => {
       });
 
       console.log(`Section ${section} updated successfully`);
+
+      alert("Update successful for " + section);
       setSectionStatus((prev) => ({ ...prev, [section]: "success" }));
       setTimeout(() => {
         setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
@@ -597,7 +603,9 @@ const EditUser = () => {
   const handleNestedChange = (e, parentKey, childKey) => {
     const { value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
-    console.log(`Changing nested field ${parentKey}.${childKey} to ${newValue}`);
+    console.log(
+      `Changing nested field ${parentKey}.${childKey} to ${newValue}`
+    );
     setFormData((prev) => ({
       ...prev,
       [parentKey]: {
@@ -607,8 +615,15 @@ const EditUser = () => {
     }));
   };
 
-  const handleDeepNestedChange = (parentKey, childKey, grandchildKey, value) => {
-    console.log(`Changing deep nested field ${parentKey}.${childKey}.${grandchildKey} to ${value}`);
+  const handleDeepNestedChange = (
+    parentKey,
+    childKey,
+    grandchildKey,
+    value
+  ) => {
+    console.log(
+      `Changing deep nested field ${parentKey}.${childKey}.${grandchildKey} to ${value}`
+    );
     setFormData((prev) => ({
       ...prev,
       [parentKey]: {
