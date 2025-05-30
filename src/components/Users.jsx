@@ -257,9 +257,9 @@ const Users = () => {
     let expiry;
     if (currentStatus == false) {
       expiry = prompt("Number of months:");
-      const parsed = Number(input);
+      const parsed = Number(expiry);
 
-      if (!input || isNaN(parsed) || parsed <= 0) {
+      if (!expiry || isNaN(parsed) || parsed <= 0) {
         alert("❌ Invalid input. Expiry must be a positive number.");
         // Optionally throw or handle it here
       } else {
