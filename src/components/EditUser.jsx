@@ -500,7 +500,7 @@ const EditUser = () => {
       // Choose endpoint and payload based on section name
       switch (section) {
         case "profile":
-          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}/profile`;
+          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`;
           payload = formData; // update full profile
           break;
         case "astrology":
