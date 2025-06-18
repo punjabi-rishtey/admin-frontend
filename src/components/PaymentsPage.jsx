@@ -13,7 +13,7 @@ const PaymentsPage = () => {
   }, []);
 
   const handlePaymentRequestAccept = async (e, userId) => {
-    e.preventDefault();
+    // e.preventDefault();
     const payload = { status: "Approved" };
 
     try {
@@ -35,6 +35,7 @@ const PaymentsPage = () => {
         alert(
           `Request Accepted for user \n${updatedUser.name} (${updatedUser.mobile}) \n${updatedUser.email}`
         );
+        window.location.reload();
       } else {
         alert("something went wrong");
       }
@@ -44,7 +45,7 @@ const PaymentsPage = () => {
   };
 
   const handlePaymentRequestDecline = async (e, userId) => {
-    e.preventDefault();
+    // e.preventDefault();
     const payload = { status: "Canceled" };
 
     try {
@@ -66,6 +67,7 @@ const PaymentsPage = () => {
         alert(
           `Request Declined for user \n${updatedUser.name} (${updatedUser.mobile}) \n${updatedUser.email}`
         );
+        window.location.reload();
       } else {
         alert("something went wrong");
       }
