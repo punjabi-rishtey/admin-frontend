@@ -293,6 +293,42 @@ const Users = () => {
     }
   };
 
+  const handleDelete = async (userId) => {
+    if (!userId) {
+      setError("Please enter a valid user ID");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch(
+        `https://backend-nm1z.onrender.com/api/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage(data.message || "User deleted successfully");
+      } else {
+        setError(data.message || "Failed to delete user");
+      }
+    } catch (err) {
+      setError("Network error: Unable to delete user");
+      console.error("Error deleting user:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ✅ Handle Search Input
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
@@ -426,12 +462,18 @@ const Users = () => {
                     <td className="py-4 px-6">
                       {user.marital_status || "N/A"}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-4 px-6 flex gap-3">
                       <button
                         className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded"
                         onClick={() => navigate(`/edit-user/${user._id}`)}
                       >
                         Edit
+                      </button>
+                      <button
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded"
+                        onClick={() => handleDelete(user._id)}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>

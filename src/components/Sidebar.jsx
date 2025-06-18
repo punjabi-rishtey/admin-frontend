@@ -9,7 +9,8 @@ const Sidebar = () => {
     { name: 'Customer Support', path: '/support' },
     { name: 'Payment Requests', path: '/admin/payment-requests' },
     { name: 'Membership Plans', path: '/admin/memberships' },
-    { name: 'Coupons', path: '/admin/coupons' } // Added Coupons page
+    { name: 'Coupons', path: '/admin/coupons' }, // Added Coupons page
+    {name: 'Message', path: '/message'}
   ];
 
   return (
