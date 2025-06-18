@@ -225,7 +225,9 @@ const PaymentsPage = () => {
                         onClick={(e) =>
                           handlePaymentRequestAccept(e, payment.user._id)
                         }
-                        className="py-4 cursor-pointer"
+                        className={`${
+                          payment.user.status == "Approved" ? "hidden" : "block"
+                        } py-4 cursor-pointer`}
                       >
                         ✅
                       </button>
@@ -233,7 +235,9 @@ const PaymentsPage = () => {
                         onClick={(e) =>
                           handlePaymentRequestDecline(e, payment.user._id)
                         }
-                        className="py-4 cursor-pointer"
+                        className={`${
+                          payment.user.status == "Approved" ? "block" : "hidden"
+                        } py-4 cursor-pointer`}
                       >
                         ❌
                       </button>
