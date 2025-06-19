@@ -1,3 +1,452 @@
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import ProfileDetails from "./ProfileDetails";
+import ProfessionDetails from "./ProfessionDetails";
+import EducationDetails from "./EducationDetails";
+import FamilyDetails from "./FamilyDetails";
+import AstrologyDetails from "./AstrologyDetails";
+import ProfilePictures from "./ProfilePictures";
+
+const EditUser = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  // Initialize formData with all sections
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    gender: "",
+    dob: "",
+    religion: "",
+    marital_status: "",
+    height: "",
+    caste: "",
+    language: "",
+    location: { city: "", pincode: "" },
+    hobbies: "",
+    mangalik: false,
+    birth_details: { birth_time: "", birth_place: "" },
+    physical_attributes: {
+      skin_tone: "",
+      body_type: "",
+      physical_disability: false,
+      disability_reason: "",
+    },
+    lifestyle: {
+      smoke: false,
+      drink: false,
+      veg_nonveg: "",
+      nri_status: false,
+    },
+    family: {
+      family_value: "",
+      family_size: "",
+      mother: { name: "", occupation: "" },
+      father: { name: "", occupation: "" },
+      siblings: { brother_count: 0, sister_count: 0 },
+    },
+    profession: {
+      occupation: "",
+      designation: "",
+      working_with: "",
+      working_as: "",
+      income: "",
+      work_address: "",
+    },
+    education: {
+      education_level: "",
+      education_field: "",
+      qualification_details: "",
+    },
+    astrology: { rashi_nakshatra: "", gotra: "" },
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [sectionStatus, setSectionStatus] = useState({
+    profile: "idle",
+    profession: "idle",
+    education: "idle",
+    family: "idle",
+    astrology: "idle",
+    pictures: "idle",
+  });
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+
+  useEffect(() => {
+    // console.log("> id: ", id);
+    fetchUserDetails();
+  }, [id]);
+
+  const fetchUserDetails = async () => {
+    try {
+      console.log("Fetching user details for id:", id);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `https://backend-nm1z.onrender.com/api/admin/auth/user/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      let data = response.data;
+      console.log("Fetched raw data:", data);
+
+      // Transformations to normalize values for dropdowns, etc.
+      if (data.gender) {
+        data.gender =
+          data.gender.charAt(0).toUpperCase() +
+          data.gender.slice(1).toLowerCase();
+      }
+      if (data.religion) {
+        data.religion = data.religion.toLowerCase();
+      }
+      if (data.marital_status) {
+        data.marital_status = data.marital_status
+          .toLowerCase()
+          .replace(/\s+/g, "_");
+      }
+      if (data.caste) {
+        data.caste = data.caste.toLowerCase();
+      }
+      if (typeof data.mangalik === "boolean") {
+        data.mangalik = data.mangalik ? "manglik" : "non_manglik";
+      }
+      if (data.lifestyle) {
+        data.lifestyle.smoke = data.lifestyle.smoke ? "yes" : "no";
+        data.lifestyle.drink = data.lifestyle.drink ? "yes" : "no";
+        data.lifestyle.nri_status = data.lifestyle.nri_status
+          ? "true"
+          : "false";
+        if (data.lifestyle.veg_nonveg) {
+          data.lifestyle.veg_nonveg = data.lifestyle.veg_nonveg.toLowerCase();
+        }
+      }
+      if (data.physical_attributes) {
+        data.physical_attributes.physical_disability = data.physical_attributes
+          .physical_disability
+          ? "true"
+          : "false";
+        if (data.physical_attributes.skin_tone) {
+          data.physical_attributes.skin_tone =
+            data.physical_attributes.skin_tone.toLowerCase();
+        }
+        if (data.physical_attributes.body_type) {
+          data.physical_attributes.body_type =
+            data.physical_attributes.body_type.toLowerCase();
+        }
+      }
+      if (typeof data.height === "string") {
+        const match = data.height.match(/(\d+)'(\d+)/);
+        if (match) {
+          data.height = { feet: match[1], inches: match[2] };
+        } else {
+          data.height = { feet: "", inches: "" };
+        }
+      }
+
+      console.log("Transformed data:", data);
+      setFormData(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      setError("Failed to fetch user details.");
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitSection = async (section) => {
+    try {
+      console.log(`Updating section: ${section}`);
+      setSectionStatus((prev) => ({ ...prev, [section]: "loading" }));
+      const token = localStorage.getItem("token");
+      let endpoint = "";
+      let payload = {};
+
+      switch (section) {
+        case "profile":
+          if (formData.height && typeof formData.height === "object") {
+            formData.height = `${formData.height.feet}'${formData.height.inches}"`;
+          }
+          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`;
+          payload = formData;
+          break;
+        case "astrology":
+          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/astrologies/${id}`;
+          payload = { astrology: formData.astrology };
+          break;
+        case "education":
+          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/educations/${id}`;
+          payload = { education: formData.education };
+          break;
+        case "family":
+          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/families/${id}`;
+          payload = { family: formData.family };
+          break;
+        case "profession":
+          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/professions/${id}`;
+          payload = { profession: formData.profession };
+          break;
+        default:
+          throw new Error("Unknown section: " + section);
+      }
+
+      console.log("Endpoint:", endpoint);
+      console.log("Payload:", payload);
+
+      await axios.put(endpoint, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log(`Section ${section} updated successfully`);
+
+      alert("Update successful for " + section);
+      setSectionStatus((prev) => ({ ...prev, [section]: "success" }));
+      setTimeout(() => {
+        setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
+      }, 3000);
+    } catch (error) {
+      console.error(`Error updating ${section}:`, error);
+      setSectionStatus((prev) => ({ ...prev, [section]: "error" }));
+      alert(
+        `Failed to update ${section}: ` +
+          (error.response?.data?.message || error.message)
+      );
+      setTimeout(() => {
+        setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
+      }, 3000);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      console.log("Submitting full update for user:", id);
+      await axios.put(
+        `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("User updated successfully");
+      alert("User updated successfully!");
+      navigate("/users");
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert(
+        "Failed to update user: " +
+          (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
+  const handleUpdatePictures = (updatedPictures) => {
+    setFormData((prev) => ({
+      ...prev,
+      profile_pictures: updatedPictures,
+    }));
+    handleSubmitSection("pictures");
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
+    console.log(`Changing field ${name} to ${newValue}`);
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+  };
+
+  const handleNestedChange = (e, parentKey, childKey) => {
+    const { value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
+    console.log(
+      `Changing nested field ${parentKey}.${childKey} to ${newValue}`
+    );
+    setFormData((prev) => ({
+      ...prev,
+      [parentKey]: {
+        ...prev[parentKey],
+        [childKey]: newValue,
+      },
+    }));
+  };
+
+  const handleDeepNestedChange = (
+    parentKey,
+    childKey,
+    grandchildKey,
+    value
+  ) => {
+    console.log(
+      `Changing deep nested field ${parentKey}.${childKey}.${grandchildKey} to ${value}`
+    );
+    setFormData((prev) => ({
+      ...prev,
+      [parentKey]: {
+        ...prev[parentKey],
+        [childKey]: {
+          ...prev[parentKey]?.[childKey],
+          [grandchildKey]: value,
+        },
+      },
+    }));
+  };
+
+  const handleResetPassword = () => {
+    setShowPasswordPrompt(true);
+  };
+
+  const handlePasswordSubmit = async () => {
+    if (!newPassword.trim()) {
+      alert("Please enter a new password.");
+      return;
+    }
+
+    const confirm = window.confirm(
+      `Are you sure you want to change the password for ${formData.name} to ${newPassword}?`
+    );
+
+    if (confirm) {
+      try {
+        const token = localStorage.getItem("token");
+        await axios.put(
+          // `http://localhost:5174/api/admin/auth/change-password/${id}`,
+          `https://backend-nm1z.onrender.com/api/admin/auth/change-password/${id}`,
+          { newPassword },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        alert("Password changed successfully!");
+        setShowPasswordPrompt(false);
+        setNewPassword("");
+      } catch (error) {
+        console.error("Error changing password:", error);
+        alert(
+          "Failed to change password: " +
+            (error.response?.data?.message || error.message)
+        );
+      }
+    } else {
+      setShowPasswordPrompt(false);
+      setNewPassword("");
+    }
+  };
+
+  const handlePasswordCancel = () => {
+    setShowPasswordPrompt(false);
+    setNewPassword("");
+  };
+
+  if (loading)
+    return <p className="text-center text-gray-500">Loading user details...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+
+  return (
+    <div className="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-8 my-10">
+      <h2 className="text-3xl font-bold text-gray-700 text-center mb-6">
+        Edit User
+      </h2>
+
+      <div className="flex justify-end mb-4">
+        <button
+          type="button"
+          onClick={handleResetPassword}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Reset Password
+        </button>
+      </div>
+
+      {showPasswordPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold mb-4">Set New Password</h3>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+              className="w-full p-2 border rounded mb-4"
+            />
+            <div className="flex justify-end gap-4">
+              <button
+                type="button"
+                onClick={handlePasswordSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Change Password
+              </button>
+              <button
+                type="button"
+                onClick={handlePasswordCancel}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+        <ProfileDetails
+          formData={formData}
+          handleChange={handleChange}
+          handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
+        />
+
+        <ProfessionDetails
+          formData={formData}
+          handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
+        />
+
+        <EducationDetails
+          formData={formData}
+          handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
+        />
+
+        <FamilyDetails
+          formData={formData}
+          handleNestedChange={handleNestedChange}
+          handleDeepNestedChange={handleDeepNestedChange}
+          handleSubmitSection={handleSubmitSection}
+        />
+
+        <AstrologyDetails
+          formData={formData}
+          handleNestedChange={handleNestedChange}
+          handleSubmitSection={handleSubmitSection}
+        />
+
+        <ProfilePictures
+          formData={formData}
+          handleUpdatePictures={handleUpdatePictures}
+        />
+      </form>
+    </div>
+  );
+};
+
+export default EditUser;
+
+// ======================
+
+// v1
 // import React, { useEffect, useState } from "react";
 // import { useParams, useNavigate } from "react-router-dom";
 // import axios from "axios";
@@ -330,362 +779,365 @@
 
 // export default EditUser;
 
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import ProfileDetails from "./ProfileDetails";
-import ProfessionDetails from "./ProfessionDetails";
-import EducationDetails from "./EducationDetails";
-import FamilyDetails from "./FamilyDetails";
-import AstrologyDetails from "./AstrologyDetails";
-import ProfilePictures from "./ProfilePictures";
+// ============================================
 
-const EditUser = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+// v2
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import axios from "axios";
+// import ProfileDetails from "./ProfileDetails";
+// import ProfessionDetails from "./ProfessionDetails";
+// import EducationDetails from "./EducationDetails";
+// import FamilyDetails from "./FamilyDetails";
+// import AstrologyDetails from "./AstrologyDetails";
+// import ProfilePictures from "./ProfilePictures";
 
-  // Initialize formData with all sections
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    gender: "",
-    dob: "",
-    religion: "",
-    marital_status: "",
-    height: "",
-    caste: "",
-    language: "",
-    location: { city: "", pincode: "" },
-    hobbies: "",
-    mangalik: false,
-    birth_details: { birth_time: "", birth_place: "" },
-    physical_attributes: {
-      skin_tone: "",
-      body_type: "",
-      physical_disability: false,
-      disability_reason: "",
-    },
-    lifestyle: {
-      smoke: false,
-      drink: false,
-      veg_nonveg: "",
-      nri_status: false,
-    },
-    family: {
-      family_value: "",
-      family_size: "",
-      mother: { name: "", occupation: "" },
-      father: { name: "", occupation: "" },
-      siblings: { brother_count: 0, sister_count: 0 },
-    },
-    profession: {
-      occupation: "",
-      designation: "",
-      working_with: "",
-      working_as: "",
-      income: "",
-      work_address: "",
-    },
-    education: {
-      education_level: "",
-      education_field: "",
-      qualification_details: "",
-    },
-    astrology: { rashi_nakshatra: "", gotra: "" },
-  });
+// const EditUser = () => {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [sectionStatus, setSectionStatus] = useState({
-    profile: "idle",
-    profession: "idle",
-    education: "idle",
-    family: "idle",
-    astrology: "idle",
-    pictures: "idle",
-  });
+//   // Initialize formData with all sections
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     email: "",
+//     mobile: "",
+//     gender: "",
+//     dob: "",
+//     religion: "",
+//     marital_status: "",
+//     height: "",
+//     caste: "",
+//     language: "",
+//     location: { city: "", pincode: "" },
+//     hobbies: "",
+//     mangalik: false,
+//     birth_details: { birth_time: "", birth_place: "" },
+//     physical_attributes: {
+//       skin_tone: "",
+//       body_type: "",
+//       physical_disability: false,
+//       disability_reason: "",
+//     },
+//     lifestyle: {
+//       smoke: false,
+//       drink: false,
+//       veg_nonveg: "",
+//       nri_status: false,
+//     },
+//     family: {
+//       family_value: "",
+//       family_size: "",
+//       mother: { name: "", occupation: "" },
+//       father: { name: "", occupation: "" },
+//       siblings: { brother_count: 0, sister_count: 0 },
+//     },
+//     profession: {
+//       occupation: "",
+//       designation: "",
+//       working_with: "",
+//       working_as: "",
+//       income: "",
+//       work_address: "",
+//     },
+//     education: {
+//       education_level: "",
+//       education_field: "",
+//       qualification_details: "",
+//     },
+//     astrology: { rashi_nakshatra: "", gotra: "" },
+//   });
 
-  useEffect(() => {
-    fetchUserDetails();
-  }, [id]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState("");
+//   const [sectionStatus, setSectionStatus] = useState({
+//     profile: "idle",
+//     profession: "idle",
+//     education: "idle",
+//     family: "idle",
+//     astrology: "idle",
+//     pictures: "idle",
+//   });
 
-  const fetchUserDetails = async () => {
-    try {
-      console.log("Fetching user details for id:", id);
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `https://backend-nm1z.onrender.com/api/admin/auth/user/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+//   useEffect(() => {
+//     fetchUserDetails();
+//   }, [id]);
 
-      let data = response.data;
-      console.log("Fetched raw data:", data);
+//   const fetchUserDetails = async () => {
+//     try {
+//       console.log("Fetching user details for id:", id);
+//       const token = localStorage.getItem("token");
+//       const response = await axios.get(
+//         `https://backend-nm1z.onrender.com/api/admin/auth/user/${id}`,
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
 
-      // Transformations to normalize values for dropdowns, etc.
-      if (data.gender) {
-        // Assuming admin ProfileDetails expects "Male" / "Female"
-        data.gender =
-          data.gender.charAt(0).toUpperCase() +
-          data.gender.slice(1).toLowerCase();
-      }
-      if (data.religion) {
-        data.religion = data.religion.toLowerCase();
-      }
-      if (data.marital_status) {
-        // Transform "Never Married" to "never_married", etc.
-        data.marital_status = data.marital_status
-          .toLowerCase()
-          .replace(/\s+/g, "_");
-      }
-      if (data.caste) {
-        data.caste = data.caste.toLowerCase();
-      }
-      if (typeof data.mangalik === "boolean") {
-        // For our dropdown, we want string values.
-        data.mangalik = data.mangalik ? "manglik" : "non_manglik";
-      }
-      if (data.lifestyle) {
-        data.lifestyle.smoke = data.lifestyle.smoke ? "yes" : "no";
-        data.lifestyle.drink = data.lifestyle.drink ? "yes" : "no";
-        data.lifestyle.nri_status = data.lifestyle.nri_status
-          ? "true"
-          : "false";
-        if (data.lifestyle.veg_nonveg) {
-          data.lifestyle.veg_nonveg = data.lifestyle.veg_nonveg.toLowerCase();
-        }
-      }
-      if (data.physical_attributes) {
-        data.physical_attributes.physical_disability = data.physical_attributes
-          .physical_disability
-          ? "true"
-          : "false";
-        if (data.physical_attributes.skin_tone) {
-          data.physical_attributes.skin_tone =
-            data.physical_attributes.skin_tone.toLowerCase();
-        }
-        if (data.physical_attributes.body_type) {
-          data.physical_attributes.body_type =
-            data.physical_attributes.body_type.toLowerCase();
-        }
-      }
-      if (typeof data.height === "string") {
-        const match = data.height.match(/(\d+)'(\d+)/);
-        if (match) {
-          data.height = { feet: match[1], inches: match[2] };
-        } else {
-          data.height = { feet: "", inches: "" };
-        }
-      }
+//       let data = response.data;
+//       console.log("Fetched raw data:", data);
 
-      console.log("Transformed data:", data);
-      setFormData(data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-      setError("Failed to fetch user details.");
-      setLoading(false);
-    }
-  };
+//       // Transformations to normalize values for dropdowns, etc.
+//       if (data.gender) {
+//         // Assuming admin ProfileDetails expects "Male" / "Female"
+//         data.gender =
+//           data.gender.charAt(0).toUpperCase() +
+//           data.gender.slice(1).toLowerCase();
+//       }
+//       if (data.religion) {
+//         data.religion = data.religion.toLowerCase();
+//       }
+//       if (data.marital_status) {
+//         // Transform "Never Married" to "never_married", etc.
+//         data.marital_status = data.marital_status
+//           .toLowerCase()
+//           .replace(/\s+/g, "_");
+//       }
+//       if (data.caste) {
+//         data.caste = data.caste.toLowerCase();
+//       }
+//       if (typeof data.mangalik === "boolean") {
+//         // For our dropdown, we want string values.
+//         data.mangalik = data.mangalik ? "manglik" : "non_manglik";
+//       }
+//       if (data.lifestyle) {
+//         data.lifestyle.smoke = data.lifestyle.smoke ? "yes" : "no";
+//         data.lifestyle.drink = data.lifestyle.drink ? "yes" : "no";
+//         data.lifestyle.nri_status = data.lifestyle.nri_status
+//           ? "true"
+//           : "false";
+//         if (data.lifestyle.veg_nonveg) {
+//           data.lifestyle.veg_nonveg = data.lifestyle.veg_nonveg.toLowerCase();
+//         }
+//       }
+//       if (data.physical_attributes) {
+//         data.physical_attributes.physical_disability = data.physical_attributes
+//           .physical_disability
+//           ? "true"
+//           : "false";
+//         if (data.physical_attributes.skin_tone) {
+//           data.physical_attributes.skin_tone =
+//             data.physical_attributes.skin_tone.toLowerCase();
+//         }
+//         if (data.physical_attributes.body_type) {
+//           data.physical_attributes.body_type =
+//             data.physical_attributes.body_type.toLowerCase();
+//         }
+//       }
+//       if (typeof data.height === "string") {
+//         const match = data.height.match(/(\d+)'(\d+)/);
+//         if (match) {
+//           data.height = { feet: match[1], inches: match[2] };
+//         } else {
+//           data.height = { feet: "", inches: "" };
+//         }
+//       }
 
-  // Centralized update handler for each section
-  const handleSubmitSection = async (section) => {
-    try {
-      console.log(`Updating section: ${section}`);
-      setSectionStatus((prev) => ({ ...prev, [section]: "loading" }));
-      const token = localStorage.getItem("token");
-      let endpoint = "";
-      let payload = {};
+//       console.log("Transformed data:", data);
+//       setFormData(data);
+//       setLoading(false);
+//     } catch (error) {
+//       console.error("Error fetching user details:", error);
+//       setError("Failed to fetch user details.");
+//       setLoading(false);
+//     }
+//   };
 
-      // Choose endpoint and payload based on section name
-      switch (section) {
-        case "profile":
-          // Convert height object to string if needed
-          if (formData.height && typeof formData.height === "object") {
-            formData.height = `${formData.height.feet}'${formData.height.inches}"`;
-          }
-          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`;
-          payload = formData;
-          break;
-        case "astrology":
-          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/astrologies/${id}`;
-          payload = { astrology: formData.astrology };
-          break;
-        case "education":
-          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/educations/${id}`;
-          payload = { education: formData.education };
-          break;
-        case "family":
-          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/families/${id}`;
-          payload = { family: formData.family };
-          break;
-        case "profession":
-          endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/professions/${id}`;
-          payload = { profession: formData.profession };
-          break;
-        // Add more sections if needed
-        default:
-          throw new Error("Unknown section: " + section);
-      }
+//   // Centralized update handler for each section
+//   const handleSubmitSection = async (section) => {
+//     try {
+//       console.log(`Updating section: ${section}`);
+//       setSectionStatus((prev) => ({ ...prev, [section]: "loading" }));
+//       const token = localStorage.getItem("token");
+//       let endpoint = "";
+//       let payload = {};
 
-      console.log("Endpoint:", endpoint);
-      console.log("Payload:", payload);
+//       // Choose endpoint and payload based on section name
+//       switch (section) {
+//         case "profile":
+//           // Convert height object to string if needed
+//           if (formData.height && typeof formData.height === "object") {
+//             formData.height = `${formData.height.feet}'${formData.height.inches}"`;
+//           }
+//           endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`;
+//           payload = formData;
+//           break;
+//         case "astrology":
+//           endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/astrologies/${id}`;
+//           payload = { astrology: formData.astrology };
+//           break;
+//         case "education":
+//           endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/educations/${id}`;
+//           payload = { education: formData.education };
+//           break;
+//         case "family":
+//           endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/families/${id}`;
+//           payload = { family: formData.family };
+//           break;
+//         case "profession":
+//           endpoint = `https://backend-nm1z.onrender.com/api/admin/auth/professions/${id}`;
+//           payload = { profession: formData.profession };
+//           break;
+//         // Add more sections if needed
+//         default:
+//           throw new Error("Unknown section: " + section);
+//       }
 
-      await axios.put(endpoint, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+//       console.log("Endpoint:", endpoint);
+//       console.log("Payload:", payload);
 
-      console.log(`Section ${section} updated successfully`);
+//       await axios.put(endpoint, payload, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       });
 
-      alert("Update successful for " + section);
-      setSectionStatus((prev) => ({ ...prev, [section]: "success" }));
-      setTimeout(() => {
-        setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
-      }, 3000);
-    } catch (error) {
-      console.error(`Error updating ${section}:`, error);
-      setSectionStatus((prev) => ({ ...prev, [section]: "error" }));
-      alert(
-        `Failed to update ${section}: ` +
-          (error.response?.data?.message || error.message)
-      );
-      setTimeout(() => {
-        setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
-      }, 3000);
-    }
-  };
+//       console.log(`Section ${section} updated successfully`);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("token");
-      console.log("Submitting full update for user:", id);
-      await axios.put(
-        `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("User updated successfully");
-      alert("User updated successfully!");
-      navigate("/users");
-    } catch (error) {
-      console.error("Error updating user:", error);
-      alert(
-        "Failed to update user: " +
-          (error.response?.data?.message || error.message)
-      );
-    }
-  };
+//       alert("Update successful for " + section);
+//       setSectionStatus((prev) => ({ ...prev, [section]: "success" }));
+//       setTimeout(() => {
+//         setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
+//       }, 3000);
+//     } catch (error) {
+//       console.error(`Error updating ${section}:`, error);
+//       setSectionStatus((prev) => ({ ...prev, [section]: "error" }));
+//       alert(
+//         `Failed to update ${section}: ` +
+//           (error.response?.data?.message || error.message)
+//       );
+//       setTimeout(() => {
+//         setSectionStatus((prev) => ({ ...prev, [section]: "idle" }));
+//       }, 3000);
+//     }
+//   };
 
-  const handleUpdatePictures = (updatedPictures) => {
-    setFormData((prev) => ({
-      ...prev,
-      profile_pictures: updatedPictures,
-    }));
-    handleSubmitSection("pictures");
-  };
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const token = localStorage.getItem("token");
+//       console.log("Submitting full update for user:", id);
+//       await axios.put(
+//         `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`,
+//         formData,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+//       console.log("User updated successfully");
+//       alert("User updated successfully!");
+//       navigate("/users");
+//     } catch (error) {
+//       console.error("Error updating user:", error);
+//       alert(
+//         "Failed to update user: " +
+//           (error.response?.data?.message || error.message)
+//       );
+//     }
+//   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const newValue = type === "checkbox" ? checked : value;
-    console.log(`Changing field ${name} to ${newValue}`);
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
-  };
+//   const handleUpdatePictures = (updatedPictures) => {
+//     setFormData((prev) => ({
+//       ...prev,
+//       profile_pictures: updatedPictures,
+//     }));
+//     handleSubmitSection("pictures");
+//   };
 
-  const handleNestedChange = (e, parentKey, childKey) => {
-    const { value, type, checked } = e.target;
-    const newValue = type === "checkbox" ? checked : value;
-    console.log(
-      `Changing nested field ${parentKey}.${childKey} to ${newValue}`
-    );
-    setFormData((prev) => ({
-      ...prev,
-      [parentKey]: {
-        ...prev[parentKey],
-        [childKey]: newValue,
-      },
-    }));
-  };
+//   const handleChange = (e) => {
+//     const { name, value, type, checked } = e.target;
+//     const newValue = type === "checkbox" ? checked : value;
+//     console.log(`Changing field ${name} to ${newValue}`);
+//     setFormData((prev) => ({ ...prev, [name]: newValue }));
+//   };
 
-  const handleDeepNestedChange = (
-    parentKey,
-    childKey,
-    grandchildKey,
-    value
-  ) => {
-    console.log(
-      `Changing deep nested field ${parentKey}.${childKey}.${grandchildKey} to ${value}`
-    );
-    setFormData((prev) => ({
-      ...prev,
-      [parentKey]: {
-        ...prev[parentKey],
-        [childKey]: {
-          ...prev[parentKey]?.[childKey],
-          [grandchildKey]: value,
-        },
-      },
-    }));
-  };
+//   const handleNestedChange = (e, parentKey, childKey) => {
+//     const { value, type, checked } = e.target;
+//     const newValue = type === "checkbox" ? checked : value;
+//     console.log(
+//       `Changing nested field ${parentKey}.${childKey} to ${newValue}`
+//     );
+//     setFormData((prev) => ({
+//       ...prev,
+//       [parentKey]: {
+//         ...prev[parentKey],
+//         [childKey]: newValue,
+//       },
+//     }));
+//   };
 
-  if (loading)
-    return <p className="text-center text-gray-500">Loading user details...</p>;
-  if (error) return <p className="text-center text-red-500">{error}</p>;
+//   const handleDeepNestedChange = (
+//     parentKey,
+//     childKey,
+//     grandchildKey,
+//     value
+//   ) => {
+//     console.log(
+//       `Changing deep nested field ${parentKey}.${childKey}.${grandchildKey} to ${value}`
+//     );
+//     setFormData((prev) => ({
+//       ...prev,
+//       [parentKey]: {
+//         ...prev[parentKey],
+//         [childKey]: {
+//           ...prev[parentKey]?.[childKey],
+//           [grandchildKey]: value,
+//         },
+//       },
+//     }));
+//   };
 
-  return (
-    <div className="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-8 my-10">
-      <h2 className="text-3xl font-bold text-gray-700 text-center mb-6">
-        Edit User
-      </h2>
+//   if (loading)
+//     return <p className="text-center text-gray-500">Loading user details...</p>;
+//   if (error) return <p className="text-center text-red-500">{error}</p>;
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
-        <ProfileDetails
-          formData={formData}
-          handleChange={handleChange}
-          handleNestedChange={handleNestedChange}
-          handleSubmitSection={handleSubmitSection}
-        />
+//   return (
+//     <div className="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-8 my-10">
+//       <h2 className="text-3xl font-bold text-gray-700 text-center mb-6">
+//         Edit User
+//       </h2>
 
-        <ProfessionDetails
-          formData={formData}
-          handleNestedChange={handleNestedChange}
-          handleSubmitSection={handleSubmitSection}
-        />
+//       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+//         <ProfileDetails
+//           formData={formData}
+//           handleChange={handleChange}
+//           handleNestedChange={handleNestedChange}
+//           handleSubmitSection={handleSubmitSection}
+//         />
 
-        <EducationDetails
-          formData={formData}
-          handleNestedChange={handleNestedChange}
-          handleSubmitSection={handleSubmitSection}
-        />
+//         <ProfessionDetails
+//           formData={formData}
+//           handleNestedChange={handleNestedChange}
+//           handleSubmitSection={handleSubmitSection}
+//         />
 
-        <FamilyDetails
-          formData={formData}
-          handleNestedChange={handleNestedChange}
-          handleDeepNestedChange={handleDeepNestedChange}
-          handleSubmitSection={handleSubmitSection}
-        />
+//         <EducationDetails
+//           formData={formData}
+//           handleNestedChange={handleNestedChange}
+//           handleSubmitSection={handleSubmitSection}
+//         />
 
-        <AstrologyDetails
-          formData={formData}
-          handleNestedChange={handleNestedChange}
-          handleSubmitSection={handleSubmitSection}
-        />
+//         <FamilyDetails
+//           formData={formData}
+//           handleNestedChange={handleNestedChange}
+//           handleDeepNestedChange={handleDeepNestedChange}
+//           handleSubmitSection={handleSubmitSection}
+//         />
 
-        <ProfilePictures
-          formData={formData}
-          handleUpdatePictures={handleUpdatePictures}
-        />
-      </form>
-    </div>
-  );
-};
+//         <AstrologyDetails
+//           formData={formData}
+//           handleNestedChange={handleNestedChange}
+//           handleSubmitSection={handleSubmitSection}
+//         />
 
-export default EditUser;
+//         <ProfilePictures
+//           formData={formData}
+//           handleUpdatePictures={handleUpdatePictures}
+//         />
+//       </form>
+//     </div>
+//   );
+// };
+
+// export default EditUser;
