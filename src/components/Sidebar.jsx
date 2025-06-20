@@ -3,14 +3,15 @@ import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
   const navItems = [
-    { name: 'Users', path: '/users' },
-    { name: 'Owner\'s Creatives', path: '/creatives' },
-    { name: 'Analytics', path: '/analytics' },
-    { name: 'Customer Support', path: '/support' },
-    { name: 'Payment Requests', path: '/admin/payment-requests' },
-    { name: 'Membership Plans', path: '/admin/memberships' },
-    { name: 'Coupons', path: '/admin/coupons' }, // Added Coupons page
-    {name: 'Message', path: '/message'}
+    { name: "Users", path: "/users" },
+    { name: "Owner's Creatives", path: "/creatives" },
+    { name: "Analytics", path: "/analytics" },
+    { name: "Customer Support", path: "/support" },
+    { name: "Payment Requests", path: "/admin/payment-requests" },
+    { name: "Membership Plans", path: "/admin/memberships" },
+    { name: "Coupons", path: "/admin/coupons" }, // Added Coupons page
+    { name: "Message", path: "/message" },
+    { name: "Reviews", path: "/reviews" },
   ];
 
   return (
