@@ -124,7 +124,8 @@ const Users = () => {
       const data = await response.json();
 
       if (response.ok) {
-        fetchUsers();
+        fetchUsers();        
+        window.location.reload();
       } else {
         setError(data.message || "Failed to delete user");
       }
