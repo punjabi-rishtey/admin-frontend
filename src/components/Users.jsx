@@ -112,7 +112,7 @@ const Users = () => {
 
     try {
       const response = await fetch(
-        `https://backend-nm1z.onrender.com/api/admin/auth/delteuser/${userId}`,
+        `https://backend-nm1z.onrender.com/api/admin/auth/deleteuser/${userId}`,
         {
           method: "DELETE",
           headers: {
