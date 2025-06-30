@@ -255,6 +255,7 @@ const Users = () => {
                 <th className="py-3 px-6">Subscription Active</th>
                 <th className="py-3 px-6">Mobile Number</th>
                 <th className="py-3 px-6">Marital Status</th>
+                <th className="py-3 px-6">Registered At</th>
                 <th className="py-3 px-6">Actions</th>
               </tr>
             </thead>
@@ -303,6 +304,9 @@ const Users = () => {
                     <td className="py-4 px-6">{user.mobile || "N/A"}</td>
                     <td className="py-4 px-6">
                       {user.marital_status || "N/A"}
+                    </td>
+                    <td className="py-4 px-6">
+                      {user.metadata.register_date || "N/A"}
                     </td>
                     <td className="py-4 px-6 flex gap-3">
                       <button
