@@ -305,8 +305,21 @@ const Users = () => {
                     <td className="py-4 px-6">
                       {user.marital_status || "N/A"}
                     </td>
-                    <td className="py-4 px-6">
-                      {user.metadata.register_date || "N/A"}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {/* Inline date conversion logic */}
+                        {user.metadata.register_date ?
+                            (() => {
+                                const date = new Date(user.metadata.register_date);
+                                if (isNaN(date.getTime())) {
+                                    return "Invalid Date";
+                                }
+                                const day = String(date.getUTCDate()).padStart(2, '0');
+                                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                                const year = date.getUTCFullYear();
+                                return `${day}/${month}/${year}`;
+                            })()
+                            : "N/A"
+                        }
                     </td>
                     <td className="py-4 px-6 flex gap-3">
                       <button
