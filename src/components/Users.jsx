@@ -1,5 +1,3 @@
-// Updated Users Component with Improved Modern UI/UX and Formatting
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import UserStatusStats from "./UserStatusStats";
@@ -158,14 +156,14 @@ const Users = () => {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-white shadow-xl rounded-2xl space-y-6">
+    <div className="p-6 bg-gradient-to-br from-white to-[#f9fafb] shadow-xl rounded-2xl space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <input
           type="text"
           placeholder="Search by name..."
           value={searchQuery}
           onChange={handleSearch}
-          className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
+          className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-sky-300"
         />
 
         <div className="flex flex-wrap gap-2 items-center">
@@ -181,7 +179,7 @@ const Users = () => {
           <button
             onClick={() => handleSort("alphabet")}
             className={`px-3 py-2 border rounded-md ${
-              sortBy === "alphabet" ? "bg-indigo-100" : ""
+              sortBy === "alphabet" ? "bg-sky-100" : ""
             }`}
           >
             Name {sortBy === "alphabet" && (sortOrder === "asc" ? "↑" : "↓")}
@@ -189,7 +187,7 @@ const Users = () => {
           <button
             onClick={() => handleSort("created")}
             className={`px-3 py-2 border rounded-md ${
-              sortBy === "created" ? "bg-indigo-100" : ""
+              sortBy === "created" ? "bg-sky-100" : ""
             }`}
           >
             Date {sortBy === "created" && (sortOrder === "asc" ? "↑" : "↓")}
@@ -198,7 +196,7 @@ const Users = () => {
 
         <button
           onClick={() => navigate("/add-user")}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg shadow"
+          className="bg-sky-500 hover:bg-sky-600 text-white px-5 py-2 rounded-lg shadow"
         >
           + Add User
         </button>
@@ -213,7 +211,7 @@ const Users = () => {
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-indigo-50 text-indigo-700">
+            <thead className="bg-sky-50 text-sky-700">
               <tr>
                 {[
                   "Name",
@@ -234,8 +232,13 @@ const Users = () => {
             </thead>
             <tbody>
               {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
-                  <tr key={user._id} className="border-b hover:bg-gray-50">
+                filteredUsers.map((user, index) => (
+                  <tr
+                    key={user._id}
+                    className={`${
+                      index % 2 === 0 ? "bg-white" : "bg-[#f4f6f8]"
+                    } hover:bg-sky-50`}
+                  >
                     <td className="px-4 py-2">{user.name || "N/A"}</td>
                     <td className="px-4 py-2">
                       {user.dob
@@ -246,15 +249,23 @@ const Users = () => {
                     <td className="px-4 py-2">{user.religion || "N/A"}</td>
                     <td className="px-4 py-2">{user.caste || "N/A"}</td>
                     <td className="px-4 py-2">
-                      <span
-                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.subscriptionActive
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {user.subscriptionActive ? "Active" : "Inactive"}
-                      </span>
+                      <label className="inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={user.subscriptionActive}
+                          onChange={() =>
+                            toggleSubscription(
+                              user._id,
+                              user.subscriptionActive
+                            )
+                          }
+                          disabled={updating[user._id]}
+                        />
+                        <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-green-400 relative transition-colors">
+                          <div className="absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-5" />
+                        </div>
+                      </label>
                     </td>
                     <td className="px-4 py-2">{user.mobile || "N/A"}</td>
                     <td className="px-4 py-2">
