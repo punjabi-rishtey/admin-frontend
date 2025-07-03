@@ -13,6 +13,7 @@ import CouponsPage from "./components/CouponsPage";
 import PaymentsPage from "./components/PaymentsPage";
 import MessagePage from "./components/MessagePage";
 import ReviewPage from "./components/ReviewPage";
+import UtilityPage from "./components/UtilityPage";
 
 const App = () => {
   const location = useLocation(); // Hook to access the current route
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="/admin/payment-requests" element={<PaymentsPage />} />
           <Route path="/message" element={<MessagePage />} />
           <Route path="/reviews" element={<ReviewPage />} />
+          <Route path="/utility" element={<UtilityPage />} />
         </Routes>
       </div>
     </div>
