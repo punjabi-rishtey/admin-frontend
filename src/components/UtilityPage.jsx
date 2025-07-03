@@ -80,12 +80,12 @@ const UtilityPage = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-medium mb-1" htmlFor="name">
-            Label
+            UPI ID
           </label>
           <input
             id="name"
             type="text"
-            placeholder="e.g., GPay, PhonePe"
+            placeholder="yourcompany@upi"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full p-2 border rounded"
