@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
   const navItems = [
@@ -12,6 +12,7 @@ const Sidebar = () => {
     { name: "Coupons", path: "/admin/coupons" }, // Added Coupons page
     { name: "Message", path: "/message" },
     { name: "Reviews", path: "/reviews" },
+    { name: "Utility", path: "/utility" },
   ];
 
   return (
@@ -23,7 +24,9 @@ const Sidebar = () => {
             <NavLink
               to={item.path}
               className={({ isActive }) =>
-                isActive ? 'block p-4 bg-gray-700' : 'block p-4 text-gray-300 hover:bg-gray-700'
+                isActive
+                  ? "block p-4 bg-gray-700"
+                  : "block p-4 text-gray-300 hover:bg-gray-700"
               }
             >
               {item.name}
