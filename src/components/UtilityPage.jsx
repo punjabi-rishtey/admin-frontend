@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_URL = "https://backend-nm1z.onrender.com/api";
+const API_URL = "https://backend-nm1z.onrender.com/api/admin/auth/qr";
 const UtilityPage = () => {
   const [qr, setQr] = useState(null);
   const [name, setName] = useState("");
