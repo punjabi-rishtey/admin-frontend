@@ -188,7 +188,7 @@ const PaymentsPage = () => {
                   <tr
                     key={payment._id}
                     className={` ${
-                      payment.user.status == "Approved"
+                      payment.user?.status == "Approved"
                         ? "border-l-2 border-green-500"
                         : " border-l-2 border-red-500"
                     }   hover:bg-gray-100`}
@@ -215,7 +215,7 @@ const PaymentsPage = () => {
                     <td className="px-6 py-4">
                       {formatDate(payment.expiresAt)}
                     </td>
-                    <td className="px-6 py-4">{payment.user.status}</td>
+                    <td className="px-6 py-4">{payment.user?.status || "N/A"}</td>
                     <td className="px-6 py-4 flex gap-4">
                       <button
                         onClick={() => viewDetails(payment)}
@@ -228,7 +228,7 @@ const PaymentsPage = () => {
                           handlePaymentRequestAccept(e, payment.user._id)
                         }
                         className={`${
-                          payment.user.status == "Approved" ? "hidden" : "block"
+                          payment.user?.status == "Approved" ? "hidden" : "block"
                         } py-4 cursor-pointer`}
                       >
                         ✅
@@ -238,7 +238,7 @@ const PaymentsPage = () => {
                           handlePaymentRequestDecline(e, payment.user._id)
                         }
                         className={`${
-                          payment.user.status == "Approved" ? "block" : "hidden"
+                          payment.user?.status == "Approved" ? "block" : "hidden"
                         } py-4 cursor-pointer`}
                       >
                         ❌
@@ -275,7 +275,7 @@ const PaymentsPage = () => {
                 </p>
                 <p>
                   <span className="font-medium">Status:</span>{" "}
-                  {selectedPayment.user.status}
+                  {selectedPayment.user?.status || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Email:</span>{" "}
