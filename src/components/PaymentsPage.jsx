@@ -9,6 +9,14 @@ const PaymentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    payments.map((item)=>{
+      if (!item.user || !item.user.status) {
+        console.log(item)
+      }
+    })
+  }, [payments]);
+
+  useEffect(() => {
     fetchPayments();
   }, []);
 
