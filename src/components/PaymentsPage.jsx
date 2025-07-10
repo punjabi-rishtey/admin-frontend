@@ -9,7 +9,7 @@ const PaymentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    payments.map((item)=>{
+    payments.forEach((item)=>{
       if (!item.user || !item.user.status) {
         console.log(item)
       }
