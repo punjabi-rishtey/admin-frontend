@@ -15,6 +15,7 @@ const EditUser = () => {
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [submitError, setSubmitError] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -118,9 +119,10 @@ const EditUser = () => {
           }
         }
       );
+      setSubmitError(null);
       alert(`${section.charAt(0).toUpperCase() + section.slice(1)} updated successfully!`);
     } catch (err) {
-      alert(`Failed to update ${section}: ${err.response?.data?.message || err.message}`);
+      setSubmitError(err.response?.data?.message || err.message);
     }
   };
 
@@ -130,7 +132,7 @@ const EditUser = () => {
 
   const handlePasswordSubmit = async () => {
     if (!newPassword.trim()) {
-      alert('Please enter a new password.');
+      setSubmitError('Please enter a new password.');
       return;
     }
 
@@ -151,11 +153,12 @@ const EditUser = () => {
             }
           }
         );
+        setSubmitError(null);
         alert('Password changed successfully!');
         setShowPasswordPrompt(false);
         setNewPassword('');
       } catch (err) {
-        alert(`Failed to change password: ${err.response?.data?.message || err.message}`);
+        setSubmitError(err.response?.data?.message || err.message);
       }
     } else {
       setShowPasswordPrompt(false);
@@ -168,465 +171,896 @@ const EditUser = () => {
     setNewPassword('');
   };
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
-  if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+      <div className="text-2xl font-semibold text-gray-700">Loading...</div>
+    </div>
+  );
+  if (error) return (
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+      <div className="text-2xl font-semibold text-red-600">Error: {error}</div>
+    </div>
+  );
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Edit User Profile</h1>
+    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 py-8">
+      <div className="container mx-auto p-6 max-w-4xl">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Edit User Profile</h1>
+        
+        {submitError && (
+          <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shadow-md">
+            <p className="font-semibold">Error: {submitError}</p>
+          </div>
+        )}
 
-      {/* User Basic Information */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.user.name}
-            onChange={(e) => handleInputChange('user', 'name', e.target.value)}
-            placeholder="Name"
-            className="p-2 border rounded"
-          />
-          <input
-            type="email"
-            value={formData.user.email}
-            onChange={(e) => handleInputChange('user', 'email', e.target.value)}
-            placeholder="Email"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.mobile}
-            onChange={(e) => handleInputChange('user', 'mobile', e.target.value)}
-            placeholder="Mobile"
-            className="p-2 border rounded"
-          />
-          <select
-            value={formData.user.gender}
-            onChange={(e) => handleInputChange('user', 'gender', e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-          <input
-            type="date"
-            value={formData.user.dob}
-            onChange={(e) => handleInputChange('user', 'dob', e.target.value)}
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.religion}
-            onChange={(e) => handleInputChange('user', 'religion', e.target.value)}
-            placeholder="Religion"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.caste}
-            onChange={(e) => handleInputChange('user', 'caste', e.target.value)}
-            placeholder="Caste"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.height}
-            onChange={(e) => handleInputChange('user', 'height', e.target.value)}
-            placeholder="Height"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.language}
-            onChange={(e) => handleInputChange('user', 'language', e.target.value)}
-            placeholder="Language"
-            className="p-2 border rounded"
-          />
-          <select
-            value={formData.user.mangalik}
-            onChange={(e) => handleInputChange('user', 'mangalik', e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="false">Non-Mangalik</option>
-            <option value="true">Mangalik</option>
-          </select>
-        </div>
-        <button
-          onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Basic Info
-        </button>
-      </div>
-
-      {/* Birth Details */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Birth Details</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.user.birth_details.birth_time}
-            onChange={(e) => handleInputChange('user', 'birth_time', e.target.value, 'birth_details')}
-            placeholder="Birth Time"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.birth_details.birth_place}
-            onChange={(e) => handleInputChange('user', 'birth_place', e.target.value, 'birth_details')}
-            placeholder="Birth Place"
-            className="p-2 border rounded"
-          />
-        </div>
-        <button
-          onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Birth Details
-        </button>
-      </div>
-
-      {/* Physical Attributes */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Physical Attributes</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.user.physical_attributes.skin_tone}
-            onChange={(e) => handleInputChange('user', 'skin_tone', e.target.value, 'physical_attributes')}
-            placeholder="Skin Tone"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.physical_attributes.body_type}
-            onChange={(e) => handleInputChange('user', 'body_type', e.target.value, 'physical_attributes')}
-            placeholder="Body Type"
-            className="p-2 border rounded"
-          />
-          <select
-            value={formData.user.physical_attributes.physical_disability}
-            onChange={(e) => handleInputChange('user', 'physical_disability', e.target.value === 'true', 'physical_attributes')}
-            className="p-2 border rounded"
-          >
-            <option value={false}>No Disability</option>
-            <option value={true}>Has Disability</option>
-          </select>
-          <input
-            type="text"
-            value={formData.user.physical_attributes.disability_reason}
-            onChange={(e) => handleInputChange('user', 'disability_reason', e.target.value, 'physical_attributes')}
-            placeholder="Disability Reason"
-            className="p-2 border rounded"
-          />
-        </div>
-        <button
-          onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Physical Attributes
-        </button>
-      </div>
-
-      {/* Lifestyle */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Lifestyle</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <select
-            value={formData.user.lifestyle.smoke}
-            onChange={(e) => handleInputChange('user', 'smoke', e.target.value, 'lifestyle')}
-            className="p-2 border rounded"
-          >
-            <option value="no">No Smoking</option>
-            <option value="yes">Smokes</option>
-          </select>
-          <select
-            value={formData.user.lifestyle.drink}
-            onChange={(e) => handleInputChange('user', 'drink', e.target.value, 'lifestyle')}
-            className="p-2 border rounded"
-          >
-            <option value="no">No Drinking</option>
-            <option value="yes">Drinks</option>
-          </select>
-          <input
-            type="text"
-            value={formData.user.lifestyle.veg_nonveg}
-            onChange={(e) => handleInputChange('user', 'veg_nonveg', e.target.value, 'lifestyle')}
-            placeholder="Veg/Non-veg"
-            className="p-2 border rounded"
-          />
-          <select
-            value={formData.user.lifestyle.nri_status}
-            onChange={(e) => handleInputChange('user', 'nri_status', e.target.value === 'true', 'lifestyle')}
-            className="p-2 border rounded"
-          >
-            <option value={false}>Not NRI</option>
-            <option value={true}>NRI</option>
-          </select>
-        </div>
-        <button
-          onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Lifestyle
-        </button>
-      </div>
-
-      {/* Location */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Location</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.user.location.city}
-            onChange={(e) => handleInputChange('user', 'city', e.target.value, 'location')}
-            placeholder="City"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.user.location.address}
-            onChange={(e) => handleInputChange('user', 'address', e.target.value, 'location')}
-            placeholder="Address"
-            className="p-2 border rounded"
-          />
-        </div>
-        <button
-          onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Location
-        </button>
-      </div>
-
-      {/* Astrology */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Astrology</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.astrology.rashi_nakshatra}
-            onChange={(e) => handleInputChange('astrology', 'rashi_nakshatra', e.target.value)}
-            placeholder="Rashi Nakshatra"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.astrology.gotra}
-            onChange={(e) => handleInputChange('astrology', 'gotra', e.target.value)}
-            placeholder="Gotra"
-            className="p-2 border rounded"
-          />
-        </div>
-        <button
-          onClick={() => handleSubmit('astrology', `https://backend-nm1z.onrender.com/api/admin/auth/astrologies/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Astrology
-        </button>
-      </div>
-
-      {/* Education */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Education</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.education.education_level}
-            onChange={(e) => handleInputChange('education', 'education_level', e.target.value)}
-            placeholder="Education Level"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.education.education_field}
-            onChange={(e) => handleInputChange('education', 'education_field', e.target.value)}
-            placeholder="Education Field"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.education.school_details.name}
-            onChange={(e) => handleInputChange('education', 'name', e.target.value, 'school_details')}
-            placeholder="School Name"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.education.school_details.city}
-            onChange={(e) => handleInputChange('education', 'city', e.target.value, 'school_details')}
-            placeholder="School City"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.education.college_details.name}
-            onChange={(e) => handleInputChange('education', 'name', e.target.value, 'college_details')}
-            placeholder="College Name"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.education.college_details.city}
-            onChange={(e) => handleInputChange('education', 'city', e.target.value, 'college_details')}
-            placeholder="College City"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.education.college_details.passout_year}
-            onChange={(e) => handleInputChange('education', 'passout_year', e.target.value, 'college_details')}
-            placeholder="Passout Year"
-            className="p-2 border rounded"
-          />
-        </div>
-        <button
-          onClick={() => handleSubmit('education', `https://backend-nm1z.onrender.com/api/admin/auth/educations/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Education
-        </button>
-      </div>
-
-      {/* Family */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Family</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.family.family_value}
-            onChange={(e) => handleInputChange('family', 'family_value', e.target.value)}
-            placeholder="Family Value"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.family.family_type}
-            onChange={(e) => handleInputChange('family', 'family_type', e.target.value)}
-            placeholder="Family Type"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.family.mother.name}
-            onChange={(e) => handleInputChange('family', 'name', e.target.value, 'mother')}
-            placeholder="Mother's Name"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.family.mother.occupation}
-            onChange={(e) => handleInputChange('family', 'occupation', e.target.value, 'mother')}
-            placeholder="Mother's Occupation"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.family.father.name}
-            onChange={(e) => handleInputChange('family', 'name', e.target.value, 'father')}
-            placeholder="Father's Name"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.family.father.occupation}
-            onChange={(e) => handleInputChange('family', 'occupation', e.target.value, 'father')}
-            placeholder="Father's Occupation"
-            className="p-2 border rounded"
-          />
-          <input
-            type="number"
-            value={formData.family.siblings.brother_count}
-            onChange={(e) => handleInputChange('family', 'brother_count', parseInt(e.target.value), 'siblings')}
-            placeholder="Brother Count"
-            className="p-2 border rounded"
-          />
-          <input
-            type="number"
-            value={formData.family.siblings.sister_count}
-            onChange={(e) => handleInputChange('family', 'sister_count', parseInt(e.target.value), 'siblings')}
-            placeholder="Sister Count"
-            className="p-2 border rounded"
-          />
-        </div>
-        <button
-          onClick={() => handleSubmit('family', `https://backend-nm1z.onrender.com/api/admin/auth/families/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Family
-        </button>
-      </div>
-
-      {/* Profession */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Profession</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.profession.occupation}
-            onChange={(e) => handleInputChange('profession', 'occupation', e.target.value)}
-            placeholder="Occupation"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.profession.work_address.address}
-            onChange={(e) => handleInputChange('profession', 'address', e.target.value, 'work_address')}
-            placeholder="Work Address"
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={formData.profession.work_address.city}
-            onChange={(e) => handleInputChange('profession', 'city', e.target.value, 'work_address')}
-            placeholder="Work City"
-            className="p-2 border rounded"
-          />
-        </div>
-        <button
-          onClick={() => handleSubmit('profession', `https://backend-nm1z.onrender.com/api/admin/auth/professions/${id}`)}
-          className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Save Profession
-        </button>
-      </div>
-
-      {/* Password Reset */}
-      <div className="mb-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Reset Password</h2>
-        {showPasswordPrompt ? (
-          <div className="flex flex-col gap-4">
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new password"
-              className="p-2 border rounded"
-            />
-            <div className="flex gap-4">
-              <button
-                onClick={handlePasswordSubmit}
-                className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
+        {/* User Basic Information */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Basic Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <input
+                type="text"
+                value={formData.user.name}
+                onChange={(e) => handleInputChange('user', 'name', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter full name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <input
+                type="email"
+                value={formData.user.email}
+                onChange={(e) => handleInputChange('user', 'email', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter email"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+              <input
+                type="text"
+                value={formData.user.mobile}
+                onChange={(e) => handleInputChange('user', 'mobile', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter mobile number"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <select
+                value={formData.user.gender}
+                onChange={(e) => handleInputChange('user', 'gender', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
               >
-                Submit Password
-              </button>
-              <button
-                onClick={handlePasswordCancel}
-                className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+              <input
+                type="date"
+                value={formData.user.dob}
+                onChange={(e) => handleInputChange('user', 'dob', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+              <input
+                type="text"
+                value={formData.user.religion}
+                onChange={(e) => handleInputChange('user', 'religion', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter religion"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Caste</label>
+              <input
+                type="text"
+                value={formData.user.caste}
+                onChange={(e) => handleInputChange('user', 'caste', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter caste"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Height</label>
+              <input
+                type="text"
+                value={formData.user.height}
+                onChange={(e) => handleInputChange('user', 'height', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter height (e.g., 5'10\")"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray That's all the code I can fit in this response due to the character limit. I'll continue with the rest of the EditUser.jsx component in a follow-up response to ensure the entire artefact is provided without truncation.
+
+System: Here's the continuation of the EditUser.jsx Idiomatic JSX component, completing the artefact from the previous response. I'll include the remaining fields, labels, and modern design elements with Tailwind CSS, maintaining the same artifact_id for consistency.
+
+<xaiArtifact artifact_id="222c9429-b378-4464-b563-94f36c448685" artifact_version_id="376ad512-e10f-4932-880c-6b649596b8a0" title="EditUser.jsx" contentType="text/jsx">
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+
+const EditUser = () => {
+  const { id } = useParams();
+  const [formData, setFormData] = useState({
+    user: {},
+    astrology: {},
+    education: {},
+    family: {},
+    profession: {}
+  });
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [submitError, setSubmitError] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `https://backend-nm1z.onrender.com/api/admin/auth/user/${id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setFormData({
+          user: {
+            name: response.data.name || '',
+            email: response.data.email || '',
+            mobile: response.data.mobile || '',
+            gender: response.data.gender || '',
+            dob: response.data.dob || '',
+            religion: response.data.religion || '',
+            marital_status: response.data.marital_status || '',
+            height: response.data.height || '',
+            caste: response.data.caste || '',
+            language: response.data.language || '',
+            hobbies: response.data.hobbies || [],
+            mangalik: response.data.mangalik || 'false',
+            birth_details: response.data.birth_details || { birth_time: '', birth_place: '' },
+            physical_attributes: response.data.physical_attributes || {
+              skin_tone: '',
+              body_type: '',
+              physical_disability: false,
+              disability_reason: ''
+            },
+            lifestyle: response.data.lifestyle || {
+              smoke: 'no',
+              drink: 'no',
+              veg_nonveg: '',
+              nri_status: false
+            },
+            location: response.data.location || { city: '', address: '' }
+          },
+          astrology: response.data.astrology || { rashi_nakshatra: '', gotra: '' },
+          education: response.data.education || {
+            education_level: '',
+            education_field: '',
+            school_details: { name: '', city: '' },
+            college_details: { name: '', city: '', passout_year: '' }
+          },
+          family: response.data.family || {
+            family_value: '',
+            family_type: '',
+            mother: { name: '', occupation: '' },
+            father: { name: '', occupation: '' },
+            siblings: { brother_count: 0, sister_count: 0 }
+          },
+          profession: response.data.profession || {
+            occupation: '',
+            work_address: { address: '', city: '' }
+          }
+        });
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [id]);
+
+  const handleInputChange = (section, field, value, subSection) => {
+    setFormData(prev => {
+      if (subSection) {
+        return {
+          ...prev,
+          [section]: {
+            ...prev[section],
+            [subSection]: {
+              ...prev[section][subSection],
+              [field]: value
+            }
+          }
+        };
+      }
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value
+        }
+      };
+    });
+  };
+
+  const handleSubmit = async (section, endpoint) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        endpoint,
+        formData[section],
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      setSubmitError(null);
+      alert(`${section.charAt(0).toUpperCase() + section.slice(1)} updated successfully!`);
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || err.message);
+    }
+  };
+
+  const handleResetPassword = () => {
+    setShowPasswordPrompt(true);
+  };
+
+  const handlePasswordSubmit = async () => {
+    if (!newPassword.trim()) {
+      setSubmitError('Please enter a new password.');
+      return;
+    }
+
+    const confirm = window.confirm(
+      `Are you sure you want to change the password for ${formData.user.name} to ${newPassword}?`
+    );
+
+    if (confirm) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.put(
+          `https://backend-nm1z.onrender.com/api/admin/auth/change-password/${id}`,
+          { newPassword },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        setSubmitError(null);
+        alert('Password changed successfully!');
+        setShowPasswordPrompt(false);
+        setNewPassword('');
+      } catch (err) {
+        setSubmitError(err.response?.data?.message || err.message);
+      }
+    } else {
+      setShowPasswordPrompt(false);
+      setNewPassword('');
+    }
+  };
+
+  const handlePasswordCancel = () => {
+    setShowPasswordPrompt(false);
+    setNewPassword('');
+  };
+
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+      <div className="text-2xl font-semibold text-gray-700">Loading...</div>
+    </div>
+  );
+  if (error) return (
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+      <div className="text-2xl font-semibold text-red-600">Error: {error}</div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 py-8">
+      <div className="container mx-auto p-6 max-w-4xl">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Edit User Profile</h1>
+        
+        {submitError && (
+          <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shadow-md">
+            <p className="font-semibold">Error: {submitError}</p>
+          </div>
+        )}
+
+        {/* User Basic Information */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Basic Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <input
+                type="text"
+                value={formData.user.name}
+                onChange={(e) => handleInputChange('user', 'name', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter full name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <input
+                type="email"
+                value={formData.user.email}
+                onChange={(e) => handleInputChange('user', 'email', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter email"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+              <input
+                type="text"
+                value={formData.user.mobile}
+                onChange={(e) => handleInputChange('user', 'mobile', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter mobile number"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <select
+                value={formData.user.gender}
+                onChange={(e) => handleInputChange('user', 'gender', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
               >
-                Cancel
-              </button>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+              <input
+                type="date"
+                value={formData.user.dob}
+                onChange={(e) => handleInputChange('user', 'dob', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+              <input
+                type="text"
+                value={formData.user.religion}
+                onChange={(e) => handleInputChange('user', 'religion', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter religion"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Caste</label>
+              <input
+                type="text"
+                value={formData.user.caste}
+                onChange={(e) => handleInputChange('user', 'caste', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter caste"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Height</label>
+              <input
+                type="text"
+                value={formData.user.height}
+                onChange={(e) => handleInputChange('user', 'height', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter height (e.g., 5'10\")"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+              <input
+                type="text"
+                value={formData.user.language}
+                onChange={(e) => handleInputChange('user', 'language', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter language"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mangalik Status</label>
+              <select
+                value={formData.user.mangalik}
+                onChange={(e) => handleInputChange('user', 'mangalik', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              >
+                <option value="false">Non-Mangalik</option>
+                <option value="true">Mangalik</option>
+              </select>
             </div>
           </div>
-        ) : (
           <button
-            onClick={handleResetPassword}
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
           >
-            Reset Password
+            Save Basic Information
           </button>
-        )}
+        </div>
+
+        {/* Birth Details */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Birth Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Birth Time</label>
+              <input
+                type="text"
+                value={formData.user.birth_details.birth_time}
+                onChange={(e) => handleInputChange('user', 'birth_time', e.target.value, 'birth_details')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter birth time"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Birth Place</label>
+              <input
+                type="text"
+                value={formData.user.birth_details.birth_place}
+                onChange={(e) => handleInputChange('user', 'birth_place', e.target.value, 'birth_details')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter birth place"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Birth Details
+          </button>
+        </div>
+
+        {/* Physical Attributes */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Physical Attributes</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Skin Tone</label>
+              <input
+                type="text"
+                value={formData.user.physical_attributes.skin_tone}
+                onChange={(e) => handleInputChange('user', 'skin_tone', e.target.value, 'physical_attributes')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter skin tone"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Body Type</label>
+              <input
+                type="text"
+                value={formData.user.physical_attributes.body_type}
+                onChange={(e) => handleInputChange('user', 'body_type', e.target.value, 'physical_attributes')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter body type"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Physical Disability</label>
+              <select
+                value={formData.user.physical_attributes.physical_disability}
+                onChange={(e) => handleInputChange('user', 'physical_disability', e.target.value === 'true', 'physical_attributes')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              >
+                <option value={false}>No Disability</option>
+                <option value={true}>Has Disability</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Disability Reason</label>
+              <input
+                type="text"
+                value={formData.user.physical_attributes.disability_reason}
+                onChange={(e) => handleInputChange('user', 'disability_reason', e.target.value, 'physical_attributes')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter disability reason"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Physical Attributes
+          </button>
+        </div>
+
+        {/* Lifestyle */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Lifestyle</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Smoking</label>
+              <select
+                value={formData.user.lifestyle.smoke}
+                onChange={(e) => handleInputChange('user', 'smoke', e.target.value, 'lifestyle')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              >
+                <option value="no">No Smoking</option>
+                <option value="yes">Smokes</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Drinking</label>
+              <select
+                value={formData.user.lifestyle.drink}
+                onChange={(e) => handleInputChange('user', 'drink', e.target.value, 'lifestyle')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              >
+                <option value="no">No Drinking</option>
+                <option value="yes">Drinks</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Diet</label>
+              <input
+                type="text"
+                value={formData.user.lifestyle.veg_nonveg}
+                onChange={(e) => handleInputChange('user', 'veg_nonveg', e.target.value, 'lifestyle')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter diet preference"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">NRI Status</label>
+              <select
+                value={formData.user.lifestyle.nri_status}
+                onChange={(e) => handleInputChange('user', 'nri_status', e.target.value === 'true', 'lifestyle')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              >
+                <option value={false}>Not NRI</option>
+                <option value={true}>NRI</option>
+              </select>
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Lifestyle
+          </button>
+        </div>
+
+        {/* Location */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Location</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+              <input
+                type="text"
+                value={formData.user.location.city}
+                onChange={(e) => handleInputChange('user', 'city', e.target.value, 'location')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter city"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <input
+                type="text"
+                value={formData.user.location.address}
+                onChange={(e) => handleInputChange('user', 'address', e.target.value, 'location')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter address"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('user', `https://backend-nm1z.onrender.com/api/admin/auth/users/edit/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Location
+          </button>
+        </div>
+
+        {/* Astrology */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Astrology</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Rashi Nakshatra</label>
+              <input
+                type="text"
+                value={formData.astrology.rashi_nakshatra}
+                onChange={(e) => handleInputChange('astrology', 'rashi_nakshatra', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter Rashi Nakshatra"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Gotra</label>
+              <input
+                type="text"
+                value={formData.astrology.gotra}
+                onChange={(e) => handleInputChange('astrology', 'gotra', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter Gotra"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('astrology', `https://backend-nm1z.onrender.com/api/admin/auth/astrologies/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Astrology
+          </button>
+        </div>
+
+        {/* Education */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Education</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Education Level</label>
+              <input
+                type="text"
+                value={formData.education.education_level}
+                onChange={(e) => handleInputChange('education', 'education_level', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter education level"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Education Field</label>
+              <input
+                type="text"
+                value={formData.education.education_field}
+                onChange={(e) => handleInputChange('education', 'education_field', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter education field"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
+              <input
+                type="text"
+                value={formData.education.school_details.name}
+                onChange={(e) => handleInputChange('education', 'name', e.target.value, 'school_details')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter school name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">School City</label>
+              <input
+                type="text"
+                value={formData.education.school_details.city}
+                onChange={(e) => handleInputChange('education', 'city', e.target.value, 'school_details')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter school city"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">College Name</label>
+              <input
+                type="text"
+                value={formData.education.college_details.name}
+                onChange={(e) => handleInputChange('education', 'name', e.target.value, 'college_details')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter college name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">College City</label>
+              <input
+                type="text"
+                value={formData.education.college_details.city}
+                onChange={(e) => handleInputChange('education', 'city', e.target.value, 'college_details')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter college city"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Passout Year</label>
+              <input
+                type="text"
+                value={formData.education.college_details.passout_year}
+                onChange={(e) => handleInputChange('education', 'passout_year', e.target.value, 'college_details')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter passout year"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('education', `https://backend-nm1z.onrender.com/api/admin/auth/educations/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Education
+          </button>
+        </div>
+
+        {/* Family */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Family</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Family Value</label>
+              <input
+                type="text"
+                value={formData.family.family_value}
+                onChange={(e) => handleInputChange('family', 'family_value', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter family value"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Family Type</label>
+              <input
+                type="text"
+                value={formData.family.family_type}
+                onChange={(e) => handleInputChange('family', 'family_type', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter family type"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label>
+              <input
+                type="text"
+                value={formData.family.mother.name}
+                onChange={(e) => handleInputChange('family', 'name', e.target.value, 'mother')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter mother's name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mother's Occupation</label>
+              <input
+                type="text"
+                value={formData.family.mother.occupation}
+                onChange={(e) => handleInputChange('family', 'occupation', e.target.value, 'mother')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter mother's occupation"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
+              <input
+                type="text"
+                value={formData.family.father.name}
+                onChange={(e) => handleInputChange('family', 'name', e.target.value, 'father')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter father's name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Father's Occupation</label>
+              <input
+                type="text"
+                value={formData.family.father.occupation}
+                onChange={(e) => handleInputChange('family', 'occupation', e.target.value, 'father')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter father's occupation"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Number of Brothers</label>
+              <input
+                type="number"
+                value={formData.family.siblings.brother_count}
+                onChange={(e) => handleInputChange('family', 'brother_count', parseInt(e.target.value), 'siblings')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter number of brothers"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Number of Sisters</label>
+              <input
+                type="number"
+                value={formData.family.siblings.sister_count}
+                onChange={(e) => handleInputChange('family', 'sister_count', parseInt(e.target.value), 'siblings')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter number of sisters"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('family', `https://backend-nm1z.onrender.com/api/admin/auth/families/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Family
+          </button>
+        </div>
+
+        {/* Profession */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Profession</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+              <input
+                type="text"
+                value={formData.profession.occupation}
+                onChange={(e) => handleInputChange('profession', 'occupation', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter occupation"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Work Address</label>
+              <input
+                type="text"
+                value={formData.profession.work_address.address}
+                onChange={(e) => handleInputChange('profession', 'address', e.target.value, 'work_address')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter work address"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Work City</label>
+              <input
+                type="text"
+                value={formData.profession.work_address.city}
+                onChange={(e) => handleInputChange('profession', 'city', e.target.value, 'work_address')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder="Enter work city"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => handleSubmit('profession', `https://backend-nm1z.onrender.com/api/admin/auth/professions/${id}`)}
+            className="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+          >
+            Save Profession
+          </button>
+        </div>
+
+        {/* Password Reset */}
+        <div className="mb-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-indigo-600 mb-6">Reset Password</h2>
+          {showPasswordPrompt ? (
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={handlePasswordSubmit}
+                  className="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition duration-300"
+                >
+                  Submit Password
+                </button>
+                <button
+                  onClick={handlePasswordCancel}
+                  className="flex-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={handleResetPassword}
+              className="w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+            >
+              Reset Password
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
