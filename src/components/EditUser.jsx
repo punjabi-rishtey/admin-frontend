@@ -275,7 +275,7 @@ const EditUser = () => {
                 value={formData.user.height}
                 onChange={(e) => handleInputChange('user', 'height', e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                placeholder="Enter height (e.g., 5'10\")"
+                placeholder={"Enter height (e.g., 5'10\")"}
               />
             </div>
             <div>
